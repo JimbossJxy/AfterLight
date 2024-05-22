@@ -16,3 +16,4 @@ from pygame.math import Vector2
 class Settings:
     def __init__(self, *args, **kwargs):
         pass
+    
