@@ -8,13 +8,22 @@ Referenced Code:
 
 
 """
+
+"""
+    Importing the required libraries for the code to run
+    Need to change to it checks if the required packages are installed and if not installs them
+"""
 import configparser
 import logging
 import os
-import pygame
+import pathlib
 import subprocess
+import shutil
+import zipfile
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from logging.handlers import RotatingFileHandler
+
 
 
 class initalise:
@@ -29,10 +38,6 @@ class initalise:
             self.logPath = str(Path.home() / "Documents" / "Afterlight" / "Logs")
             self.tempPath = str(Path.home() / "Documents" / "Afterlight" / "Temp")
             self.assetPath = str(Path.home() / "Documents" / "Afterlight" / "Assets")
-            self.audioPath = str(Path.home() / "Documents" / "Afterlight" / "Assets" / "Audio")
-            self.fontPath = str(Path.home() / "Documents" / "Afterlight" / "Assets" / "Fonts")
-            self.entityPath = str(Path.home() / "Documents" / "Afterlight" / "Assets" / "Entities")
-            self.playerPath = str(Path.home() / "Documents" / "Afterlight" / "Assets" / "Player")
             self.settingsFile = str(Path.home() / "Documents" / "Afterlight" / "Settings" / "settings.ini")
             
             self.defaultSettings = {
@@ -56,21 +61,21 @@ class initalise:
                         "sfxVolume": 1
                     },
                     "keybinds": {
-                        "moveUp": pygame.K_w,
-                        "moveDown": pygame.K_s,
-                        "moveLeft": pygame.K_a,
-                        "moveRight": pygame.K_d,
-                        "jump": pygame.K_SPACE,
-                        "inventory": pygame.K_e,
-                        "pause": pygame.K_ESCAPE,
-                        "sprint": pygame.K_LSHIFT,
-                        "crouch": pygame.K_LCTRL,
+                        "moveUp": "w",
+                        "moveDown": "s",
+                        "moveLeft": "a",
+                        "moveRight": "d",
+                        "jump": "SPACE",
+                        "inventory": "e",
+                        "pause": "ESCAPE",
+                        "sprint": "LSHIFT",
+                        "crouch": "LCRTL",
                     },
                     "mouseSettings": {
                         "sensitivity": 1,
                         "inverted": False,
-                        "attack": pygame.BUTTON_LEFT,
-                        "interact": pygame.BUTTON_RIGHT,
+                        "attack": "LEFT",
+                        "interact": "RIGHT",
                     },
                     "accessibilitySettings": {
                         "colourBlindMode": False,
@@ -120,14 +125,6 @@ class initalise:
             os.makedirs(self.backUpPath)
         if not os.path.exists(self.assetPath):
             os.makedirs(self.assetPath)
-        if not os.path.exists(self.audioPath):
-            os.makedirs(self.audioPath)
-        if not os.path.exists(self.fontPath):
-            os.makedirs(self.fontPath)
-        if not os.path.exists(self.entityPath):
-            os.makedirs(self.entityPath)
-        if not os.path.exists(self.playerPath):
-            os.makedirs(self.playerPath)
     
 
     def checkSettings(self):
@@ -185,20 +182,114 @@ class initalise:
             }
             with open(self.settingsFile, 'w') as configfile:
                 config.write(configfile)
+                logging.info("Wrote default settings to settings file")
+                print("Wrote default settings to settings file")
 
 
-    def check_and_install_packages():
+    def check_and_install_packages(self):
         """
         Checks if the required packages are installed and if not installs them
         """
-        required_packages = ['pygame']
+        required_packages = ['pygame', 'requests']
         
         for package in required_packages:
             try:
                 __import__(package)
+                logging.info(f"{package} is installed")
+                print(f"{package} is installed")
             except ImportError:
                 print(f"{package} is not installed. Installing...")
+                logging.info(f"{package} is not installed. Installing...")
                 subprocess.check_call(['pip', 'install', package])
                 print(f"{package} has been installed.")
+                logging.info(f"{package} has been installed.")
+    
+    def download_and_extract_assets(self):
+        import requests
+        """
+        Downloads the assets from the github repository and extracts them to the assets folder
+        """
+        _zipUrl = "https://github.com/JimbossJxy/afterlightAssets/archive/refs/heads/main.zip"
+        try:
+            # Download the zip file from the github repository
+            logging.info("Downloading assets from github")
+            _getZip = requests.get(_zipUrl)
+            _getZip.raise_for_status()
+            
+            # Extract the zip file to the temp folder
+            with TemporaryDirectory() as tempDir:
+                _zipPath = tempDir + "/gamefiles.zip"
+                with open(_zipPath, 'wb') as _zipFile:
+                    _zipFile.write(_getZip.content)
+                    logging.INFO(f"Extracting assets to the temp folder: {_zipPath}")
+                    print(f"Extracting assets to the temp folder: {_zipPath}")
+                    
+                    # Extract the zip file to temparory folder
+                    with zipfile.ZipFile(_zipPath, 'r') as _zip:
+                        tempExtractPath = os.join(tempDir, "extracted")
+                        _zip.extractall(tempExtractPath)
+                        logging.info(f"Extracted assets to {tempExtractPath}")
+                        print(f"Extracted assets to {tempExtractPath}")
+                        
+                        # Check if all assests exist in assets folder
+                        
+                        assetsExist = True
+                        for root, files in os.walk(tempExtractPath):
+                            for name in files:
+                                relativePath = os.path.relpath(os.path.join(root, name), tempExtractPath)
+                                if not os.path.exists(self.assetPath + "/" + relativePath):
+                                    assetsExist = False
+                                    break
+                                if not assetsExist:
+                                    break
+                        
+                        # If assets do not exist, clear assets folder and copy them to the assets folder
+
+                        if not assetsExist:
+                            logging.info(f"Missing assets detected, clearing assets folder: {self.assetPath}")
+                            print(f"Missing assets detected, clearing assets folder: {self.assetPath}")
+                            if os.path.exists(self.assetPath):
+                                shutil.rmtree(self.assetPath)
+                                logging.info(f"Deleted assets folder: {self.assetPath}")
+                                print(f"Deleted assets folder: {self.assetPath}")
+
+                            os.makedirs(self.assetPath)
+                            logging.info(f"Created assets folder: {self.assetPath}")
+                            print(f"Created assets folder: {self.assetPath}")
+                            logging.info(f"Copying assets to assets folder: {self.assetPath}")
+
+                            for _, directories, files in os.walk(tempExtractPath):
+                                for _ in directories:
+                                    destinationFolderPath = os.path.join(self.assetPath, os.path.relpath(root, tempExtractPath))
+                                    os.makedirs(destinationFolderPath, exist_ok=True)
+                                    logging.info(f"Created directory: {destinationFolderPath}")
+                                    print(f"Created directory: {destinationFolderPath}")
+                                for fileName in files:
+                                    relativePath = os.path.relpath(os.path.join(root, fileName), tempExtractPath)
+                                    destinationFilePath = os.path.join(self.assetPath, relativePath)
+                                    os.makedirs(os.path.dirname(destinationFilePath), exist_ok=True)
+                                    shutil.copy2(os.path.join(root, fileName), destinationFilePath)
+                    
+            logging.info("Assets have been downloaded and extracted")
+            print("Assets have been downloaded and extracted")         
+        
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Error downloading assets: {e}")
+            print(f"Error downloading assets: {e}")
+        
+        except zipfile.BadZipFile as e:
+            logging.error(f"Error extracting assets: {e}")
+            print(f"Error extracting assets: {e}")
+        
+        except Exception as e:
+            logging.error(f"An Unexpected Error Occured: {e}")
+            print(f"An Unexpected Error Occured: {e}")
+
     
 
+initalise = initalise()
+initalise.checkPaths()
+initalise.checkSettings()
+initalise.setupLogging(3145728, 10)
+initalise.check_and_install_packages()
+initalise.download_and_extract_assets()
