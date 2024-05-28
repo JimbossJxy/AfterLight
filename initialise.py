@@ -22,6 +22,7 @@ import subprocess
 import shutil
 import zipfile
 from pathlib import Path
+from src.miscFunctions.misc import misc
 from tempfile import TemporaryDirectory, mkdtemp
 from logging.handlers import RotatingFileHandler
 
@@ -40,6 +41,8 @@ class initalise:
             self.tempPath = str(Path.home() / "Documents" / "Afterlight" / "Temp")
             self.assetPath = str(Path.home() / "Documents" / "Afterlight" / "Assets")
             self.settingsFile = str(Path.home() / "Documents" / "Afterlight" / "Settings" / "settings.ini")
+            self.warningPopup = misc().warningPopup
+            self.errorPopup = misc().errorPopup
             
             self.defaultSettings = {
                   "displaySettings": {
@@ -289,16 +292,19 @@ class initalise:
         except requests.exceptions.RequestException as e:
             logging.error(f"Error downloading assets: {e}")
             print(f"Error downloading assets: {e}")
+            self.errorPopup(f"Error downloading assets{e}")
             raise ValueError("Error downloading assets")
         
         except zipfile.BadZipFile as e:
             logging.error(f"Error extracting assets: {e}")
             print(f"Error extracting assets: {e}")
+            self.errorPopup(f"Error extracting assets: {e}")
             raise ValueError("Error extracting assets")
         
         except Exception as e:
             logging.error(f"An Unexpected Error Occured: {e}")
             print(f"An Unexpected Error Occured: {e}")
+            self.errorPopup(f"An Unexpected Error Occured: {e}")
             raise e
 
     

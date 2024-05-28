@@ -17,9 +17,11 @@ import pickle
 import subprocess
 import shutil
 import zipfile
+from datetime import datetime
 from pathlib import Path
 from logging.handlers import RotatingFileHandler
-from datetime import datetime
+from src.miscFunctions.misc import misc
+
 
 class saveLoadGame:
     def __init__(self):
@@ -148,6 +150,7 @@ class delete:
         self.logger.setLevel(logging.DEBUG)
         self.handler = RotatingFileHandler(str(Path.home() / "Documents" / "Afterlight" / "Logs" / "save.log"), maxBytes=100000, backupCount=5)
         self.logger.addHandler(self.handler)
+        self.errorPop = misc().errorPopup
     
     def deleteSaveGame(self, saveName):
         """
@@ -180,7 +183,19 @@ class delete:
         Deletes the log files in the game directory
         """
         try:
-            os.remove(self.logPath + "\\" + "game.log")
+            os.remove(os.path.join(self.logPath, "save.log"))
+            self.logger.info(f"Deleted log file")
+            print(f"Deleted log file")
+        
+        except Exception as e:
+            self.logger.error(f"Error deleting log file: {e}")
+            print(f"Error deleting log file: {e}")
+            self.errorPop(f"Error deleting log file: {e}")
+
+    
+
+
+
         
 
 

@@ -28,7 +28,7 @@ class misc:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
-        self.handler = RotatingFileHandler('log.log', maxBytes=10000, backupCount=1)
+        self.handler = RotatingFileHandler(str(Path.home() / "Documents" / "Afterlight" / "Logs" / "save.log"), maxBytes=100000, backupCount=5)
         self.logger.addHandler(self.handler)
         self.logger.info("Logger created")
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
@@ -43,5 +43,6 @@ class misc:
         # Constrains for Error message box
         _MessageboxOK = 0x0
         _MessageboxIconError = 0x10
+        winsound.PlaySound("SystemHand", winsound.SND_ALIAS)
         ctypes.windll.user32.MessageBoxW(0, message, "Error", _MessageboxOK | _MessageboxIconError)
         
