@@ -14,6 +14,7 @@ Referenced Code:
     Need to change to it checks if the required packages are installed and if not installs them
 """
 import configparser
+import ctypes
 import logging
 import os
 import pathlib
@@ -226,74 +227,79 @@ class initalise:
             tempDir = mkdtemp()
             logging.info(f"Created temp folder: {tempDir}")
             print(f"Created temp folder: {tempDir}")
+
             
             _zipPath = os.path.join(tempDir, "gameFiles.zip")
             with open(_zipPath, 'wb') as _zipFile:
                 _zipFile.write(_getZip.content)
                 logging.info(f"Extracting assets to the temp folder: {_zipPath}")
                 print(f"Extracting assets to the temp folder: {_zipPath}")
+
+            # Extract the zip file to temparory folder
+            with zipfile.ZipFile(_zipPath, 'r') as _zip:
+                tempExtractPath = os.path.join(tempDir, "extracted")
+                logging.info(f"Temp path: {tempExtractPath}")
+                _zip.extractall(tempExtractPath)
+                logging.info(f"Extracted assets to {tempExtractPath}")
+                print(f"Extracted assets to {tempExtractPath}")
                 
-                # Extract the zip file to temparory folder
-                with zipfile.ZipFile(_zipPath, 'r') as _zip:
-                    tempExtractPath = os.path.join(tempDir, "extracted")
-                    logging.info(f"Temp path: {tempExtractPath}")
-                    _zip.extractall(tempExtractPath)
-                    logging.info(f"Extracted assets to {tempExtractPath}")
-                    print(f"Extracted assets to {tempExtractPath}")
-                    
-                    # Check if all assests exist in assets folder
-                    
-                    assetsExist = True
-                    for root, files in os.walk(tempExtractPath):
-                        for name in files:
-                            relativePath = os.path.relpath(os.path.join(root, name), tempExtractPath)
-                            if not os.path.exists(self.assetPath + "/" + relativePath):
-                                assetsExist = False
-                                break
-                            if not assetsExist:
-                                break
-                    
-                    # If assets do not exist, clear assets folder and copy them to the assets folder
-
+                # Check if all assests exist in assets folder
+                
+                assetsExist = True
+                for root, _, files in os.walk(tempExtractPath):
+                    for name in files:
+                        relativePath = os.path.relpath(os.path.join(root, name), tempExtractPath)
+                        if not os.path.exists(os.path.join(self.assetPath,relativePath)):
+                            assetsExist = False
+                            break
                     if not assetsExist:
-                        logging.info(f"Missing assets detected, clearing assets folder: {self.assetPath}")
-                        print(f"Missing assets detected, clearing assets folder: {self.assetPath}")
-                        if os.path.exists(self.assetPath):
-                            shutil.rmtree(self.assetPath)
-                            logging.info(f"Deleted assets folder: {self.assetPath}")
-                            print(f"Deleted assets folder: {self.assetPath}")
+                        break
+                
 
-                        os.makedirs(self.assetPath)
-                        logging.info(f"Created assets folder: {self.assetPath}")
-                        print(f"Created assets folder: {self.assetPath}")
-                        logging.info(f"Copying assets to assets folder: {self.assetPath}")
+                # If assets do not exist, clear assets folder and copy them to the assets folder
+                if not assetsExist:
+                    logging.info(f"Missing assets detected, clearing assets folder: {self.assetPath}")
+                    print(f"Missing assets detected, clearing assets folder: {self.assetPath}")
+                    if os.path.exists(self.assetPath):
+                        shutil.rmtree(self.assetPath)
+                        logging.info(f"Deleted assets folder: {self.assetPath}")
+                        print(f"Deleted assets folder: {self.assetPath}")
 
-                        for root, directories, files in os.walk(tempExtractPath):
-                            for _ in directories:
-                                destinationFolderPath = os.path.join(self.assetPath, os.path.relpath(root, tempExtractPath))
-                                os.makedirs(destinationFolderPath, exist_ok=True)
-                                logging.info(f"Created directory: {destinationFolderPath}")
-                                print(f"Created directory: {destinationFolderPath}")
-                            for fileName in files:
-                                relativePath = os.path.relpath(os.path.join(root, fileName), tempExtractPath)
-                                destinationFilePath = os.path.join(self.assetPath, relativePath)
-                                os.makedirs(os.path.dirname(destinationFilePath), exist_ok=True)
-                                shutil.copy2(os.path.join(root, fileName), destinationFilePath)
+                    os.makedirs(self.assetPath)
+                    logging.info(f"Created assets folder: {self.assetPath}")
+                    print(f"Created assets folder: {self.assetPath}")
+                    logging.info(f"Copying assets to assets folder: {self.assetPath}")
+
+                    for root, directories, files in os.walk(tempExtractPath):
+                        for _ in directories:
+                            destinationFolderPath = os.path.join(self.assetPath, os.path.relpath(root, tempExtractPath))
+                            os.makedirs(destinationFolderPath, exist_ok=True)
+                            logging.info(f"Created directory: {destinationFolderPath}")
+                            print(f"Created directory: {destinationFolderPath}")
+                        for fileName in files:
+                            relativePath = os.path.relpath(os.path.join(root, fileName), tempExtractPath)
+                            destinationFilePath = os.path.join(self.assetPath, relativePath)
+                            os.makedirs(os.path.dirname(destinationFilePath), exist_ok=True)
+                            shutil.copy2(os.path.join(root, fileName), destinationFilePath)
                     
             logging.info("Assets have been downloaded and extracted")
             print("Assets have been downloaded and extracted")         
         
+        # Error handling
         except requests.exceptions.RequestException as e:
             logging.error(f"Error downloading assets: {e}")
             print(f"Error downloading assets: {e}")
+            raise ValueError("Error downloading assets")
         
         except zipfile.BadZipFile as e:
             logging.error(f"Error extracting assets: {e}")
             print(f"Error extracting assets: {e}")
+            raise ValueError("Error extracting assets")
         
         except Exception as e:
             logging.error(f"An Unexpected Error Occured: {e}")
             print(f"An Unexpected Error Occured: {e}")
+            raise e
 
     
 
