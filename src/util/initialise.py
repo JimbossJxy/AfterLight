@@ -22,7 +22,7 @@ import subprocess
 import shutil
 import zipfile
 from pathlib import Path
-from src.miscFunctions.misc import misc
+from src.util.misc import misc
 from tempfile import TemporaryDirectory, mkdtemp
 from logging.handlers import RotatingFileHandler
 
@@ -309,9 +309,4 @@ class initalise:
 
     
 
-initalise = initalise()
-initalise.checkPaths()
-initalise.checkSettings()
-initalise.setupLogging(3145728, 10)
-initalise.check_and_install_packages()
-initalise.download_and_extract_assets()
+

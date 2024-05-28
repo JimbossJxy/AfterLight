@@ -20,7 +20,7 @@ import zipfile
 from datetime import datetime
 from pathlib import Path
 from logging.handlers import RotatingFileHandler
-from src.miscFunctions.misc import misc
+from src.util.misc import misc
 
 
 class saveLoadGame:
@@ -192,7 +192,7 @@ class delete:
             print(f"Error deleting log file: {e}")
             self.errorPop(f"Error deleting log file: {e}")
 
-    
+
 
 
 
