@@ -16,13 +16,15 @@ Referenced Code:
 import configparser
 import ctypes
 import logging
+import misc
 import os
 import pathlib
 import subprocess
+import sys
 import shutil
 import zipfile
+from misc import misc
 from pathlib import Path
-from src.util.misc import misc
 from tempfile import TemporaryDirectory, mkdtemp
 from logging.handlers import RotatingFileHandler
 
@@ -40,7 +42,8 @@ class initalise:
             self.logPath = str(Path.home() / "Documents" / "Afterlight" / "Logs")
             self.tempPath = str(Path.home() / "Documents" / "Afterlight" / "Temp")
             self.assetPath = str(Path.home() / "Documents" / "Afterlight" / "Assets")
-            self.settingsFile = str(Path.home() / "Documents" / "Afterlight" / "Settings" / "settings.ini")
+            
+
             self.warningPopup = misc().warningPopup
             self.errorPopup = misc().errorPopup
             
@@ -189,12 +192,127 @@ class initalise:
                 logging.info("Wrote default settings to settings file")
                 print("Wrote default settings to settings file")
 
+    def installVCredist(self):
+        import requests
+        _url = "https://aka.ms/vs/16/release/vc_redist.x64.exe"
+        _tempPath = mkdtemp()
+        _exePath = os.path.join(_tempPath, "vc_redist.x64.exe")
+        logging.info(f"Created temp folder: {_tempPath}")
+        print(f"Created temp folder: {_tempPath}")
 
+    
+        try:
+            # Download the exe file from the microsoft website
+            logging.info("Downloading VCredist from microsoft")
+            with requests.get(_url, stream=True) as _exe:
+                _exe.raise_for_status()
+
+                with open(_exePath, 'wb') as _exeFile:
+                    for chunk in _exe.iter_content(chunk_size=8192):
+                        _exeFile.write(chunk)
+            
+            logging.info(f"Downloaded VCredist to: {_exePath}")
+            print(f"Downloaded VCredist to: {_exePath}")
+
+            # Run the exe file to install the VCredist
+            logging.info("Installing VCredist")
+            try:
+                subprocess.run([_exePath, '/quiet', '/norestart'], check=True)
+
+            # Exception handling
+            except subprocess.CalledProcessError as e:
+                logging.error(f"Error installing VCredist: {e}")
+                print(f"Error installing VCredist: {e}")
+            
+            # Removes the temp folder for cleanup
+            finally:
+                os.remove(_exePath)
+                logging.info(f"Deleted exe file: {_exePath}")
+                print(f"Deleted exe file: {_exePath}")
+        
+        # Exception handling
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Error downloading VCredist: {e}")
+            print(f"Error downloading VCredist: {e}")
+            self.errorPopup(f"Error downloading VCredist: {e}")
+            raise ValueError("Error downloading VCredist")
+        
+        except Exception as e:
+            logging.error(f"An Unexpected Error Occured: {e}")
+            print(f"An Unexpected Error Occured: {e}")
+            self.errorPopup(f"An Unexpected Error Occured: {e}")
+            raise e
+        
+
+        """
+        Installs the VCredist package required for the noise package to work
+        """
+        try:
+            logging.info("Installing VCredist package")
+            print("Installing VCredist package")
+            subprocess.run(["vc_redist.x64.exe", "/quiet", "/norestart"], check=True)
+            logging.info("VCredist package installed")
+            print("VCredist package installed")
+        except subprocess.CalledProcessError as e:
+            logging.error(f"Error installing VCredist package: {e}")
+            print(f"Error installing VCredist package: {e}")
+            self.errorPopup(f"Error installing VCredist package: {e}")
+            raise ValueError("Error installing VCredist package")
+
+    # Function that downloads the latest version of the CPP build Tools from the microsoft website due to noise requiring it
+    def installBuildTools(self):
+        import requests # Noise must be installed last as it requires CPP build tools
+        
+        _url = "https://aka.ms/vs/17/release/vs_BuildTools.exe"
+
+        _tempPath = mkdtemp()
+        _exePath = os.path.join(_tempPath, "vs_BuildTools.exe")
+        logging.info(f"Created temp folder: {_tempPath}")
+        print(f"Created temp folder: {_tempPath}")
+        
+        try:
+            # Download the exe file from the microsoft website
+            logging.info("Downloading build tools from microsoft")
+            with requests.get(_url, stream=True) as _exe:
+                _exe.raise_for_status()
+
+                with open(_exePath, 'wb') as _exeFile:
+                    for chunk in _exe.iter_content(chunk_size=8192):
+                        _exeFile.write(chunk)
+            
+            logging.info(f"Downloaded build tools to: {_exePath}")
+            print(f"Downloaded build tools to: {_exePath}")
+
+            # Run the exe file to install the build tools
+            logging.info("Installing build tools")
+            try:
+                subprocess.run([_exePath, '--quiet', '--wait', '--norestart', '--add', 'Microsoft.VisualStudio.Workload.VCTools'], check=True)
+
+            # Exception handling
+            except subprocess.CalledProcessError as e:
+                logging.error(f"Error installing build tools: {e}")
+                print(f"Error installing build tools: {e}")
+            
+            # Removes the temp folder for cleanup
+            finally:
+                os.remove(_exePath)
+                logging.info(f"Deleted exe file: {_exePath}")
+                print(f"Deleted exe file: {_exePath}")
+                
+        # Exception handling
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Error downloading build tools: {e}")
+            print(f"Error downloading build tools: {e}")
+            self.errorPopup(f"Error downloading build tools: {e}")
+            raise ValueError("Error downloading build tools")
+
+
+    # Function to check if the required packages are installed and if not installs them
     def check_and_install_packages(self):
         """
         Checks if the required packages are installed and if not installs them
         """
-        required_packages = ['pygame', 'requests']
+        required_packages = ['pygame', 'requests', "noise"] # Do not change order of packages due to noise needing to be installed last - noise requires VCredist
         
         for package in required_packages:
             try:
@@ -202,11 +320,16 @@ class initalise:
                 logging.info(f"{package} is installed")
                 print(f"{package} is installed")
             except ImportError:
+                if package == "noise":
+                    self.installBuildTools()
+                    self.installVCredist()
                 print(f"{package} is not installed. Installing...")
                 logging.info(f"{package} is not installed. Installing...")
                 subprocess.check_call(['pip', 'install', package])
                 print(f"{package} has been installed.")
                 logging.info(f"{package} has been installed.")
+
+
     
     def download_and_extract_assets(self):
         import requests
@@ -286,7 +409,10 @@ class initalise:
                             shutil.copy2(os.path.join(root, fileName), destinationFilePath)
                     
             logging.info("Assets have been downloaded and extracted")
-            print("Assets have been downloaded and extracted")         
+            print("Assets have been downloaded and extracted")
+
+            # Remove the temp folder for cleanup
+            os.remove(tempDir)    
         
         # Error handling
         except requests.exceptions.RequestException as e:
@@ -308,5 +434,5 @@ class initalise:
             raise e
 
     
-
+initalise().check_and_install_packages()
 
