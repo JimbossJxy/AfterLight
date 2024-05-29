@@ -18,6 +18,7 @@ import pathlib
 import pickle
 import sys
 import shutil
+from src import variables
 from util.misc import misc
 from pathlib import Path
 from tempfile import TemporaryDirectory, mkdtemp
@@ -39,6 +40,39 @@ class inventory:
     
     def loadInventory(self):
         """
-        Loads the players inventory from a .dat file
+        Loads the players inventory from a load game variable to the inventory variable
+
+        Only to be run on game load not new game or save game
         """
+        if 'inventory' in variables.loadGame:
+            self.inventory = variables.loadGame['inventory']
+            _row = 0
+            _position = 0
+            
+
+        else:
+            self.warningPopup("No inventory data available")
+            self.logger.warning("No inventory data available")
+
+
+
+
+        if 'loadGame' in self.inventory:
+            load_game_inventory = self.inventory['loadGame']
+            if all(row in load_game_inventory for row in range(5)):
+                for row in range(5):
+                    if all(position in load_game_inventory[row] for position in range(5)):
+                        for position in range(5):
+                            self.inventory[row][position] = load_game_inventory[row][position]
+                    else:
+                        self.warningPopup("Invalid position in loadGame inventory")
+                        self.logger.warning("Invalid position in loadGame inventory")
+            else:
+                self.warningPopup("Invalid row in loadGame inventory")
+                self.logger.warning("Invalid row in loadGame inventory")
+        else:
+            self.warningPopup("No loadGame inventory data available")
+            self.logger.warning("No loadGame inventory data available")
+
+
         
