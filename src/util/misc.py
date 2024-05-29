@@ -45,4 +45,4 @@ class misc:
         _MessageboxIconError = 0x10
         winsound.PlaySound("SystemHand", winsound.SND_ALIAS)
         ctypes.windll.user32.MessageBoxW(0, message, "Error", _MessageboxOK | _MessageboxIconError)
-        
+
