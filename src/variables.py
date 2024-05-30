@@ -251,3 +251,95 @@ inventory = {
             }
         }
     }
+
+items = {
+    # Weapons
+    "sword": {
+        "description": "A sword",
+        "isStackable": False,
+        "isUsable": True,
+        "maxQuantity": 1
+    },
+    "bow": {
+        "description": "A bow",
+        "isStackable": False,
+        "isUsable": True,
+        "maxQuantity": 1
+    },
+    "arrow": {
+        "description": "An arrow",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 64
+    },
+    # Food
+    "apple": {
+        "description": "An apple",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 64
+    },
+    "bread": {
+        "description": "Bread",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 64
+    },
+    # Tools
+    "pickaxe": {
+        "description": "A pickaxe",
+        "isStackable": False,
+        "isUsable": True,
+        "maxQuantity": 1
+    },
+    "axe": {
+        "description": "An axe",
+        "isStackable": False,
+        "isUsable": True,
+        "maxQuantity": 1
+    },
+    "shovel": {
+        "description": "A shovel",
+        "isStackable": False,
+        "isUsable": True,
+        "maxQuantity": 1
+    },
+    # Armour
+    "helmet": {
+        "description": "A helmet",
+        "isStackable": False,
+        "isUsable": True,
+        "maxQuantity": 1
+    },
+    "chestplate": {
+        "description": "A chestplate",
+        "isStackable": False,
+        "isUsable": True,
+        "maxQuantity": 1
+    },
+    "leggings": {
+        "description": "Leggings",
+        "isStackable": False,
+        "isUsable": True,
+        "maxQuantity": 1
+    },
+    "boots": {
+        "description": "Boots",
+        "isStackable": False,
+        "isUsable": True,
+        "maxQuantity": 1
+    },
+    # Misc
+    "torch": {
+        "description": "A torch",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 1
+    },
+    "batteries" : {
+        "description": "Batteries",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 64
+    }
+}
