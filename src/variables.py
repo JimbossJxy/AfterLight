@@ -7,10 +7,9 @@ Purpose of Document: This document will be used to store all global variables fo
 
 """
 
-loadGame = {}
+loadGame = {"inventory": "test"}
 
 inventory = {
-    {
         "hotbar": {
             "position1": {
                 "item": "empty",
@@ -252,4 +251,3 @@ inventory = {
             }
         }
     }
-}

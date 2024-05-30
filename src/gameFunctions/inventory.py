@@ -26,7 +26,6 @@ from logging.handlers import RotatingFileHandler
 
 class inventory:
     def __init__(self):
-        self.inventory = {}
         self.config = configparser.ConfigParser()
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
@@ -38,41 +37,56 @@ class inventory:
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
         self.savePath = str(Path.home() / "Documents" / "Afterlight" / "Saves")
     
-    def loadInventory(self):
+    def loadInventory(self, inventory):
         """
         Loads the players inventory from a load game variable to the inventory variable
 
         Only to be run on game load not new game or save game
         """
-        if 'inventory' in variables.loadGame:
-            self.inventory = variables.loadGame['inventory']
-            _row = 0
-            _position = 0
-            
-
-        else:
-            self.warningPopup("No inventory data available")
-            self.logger.warning("No inventory data available")
-
-
-
-
-        if 'loadGame' in self.inventory:
-            load_game_inventory = self.inventory['loadGame']
-            if all(row in load_game_inventory for row in range(5)):
-                for row in range(5):
-                    if all(position in load_game_inventory[row] for position in range(5)):
-                        for position in range(5):
-                            self.inventory[row][position] = load_game_inventory[row][position]
+        required_keys = {"item", "quantity", "description", "isStackable", "isUsable", "maxQuantity"}
+        hotbar_keys = required_keys | {"isEquipped"}  # Additional key for hotbar positions
+        try:
+            # Iterate through the main categories in the inventory
+            for category, positions in inventory.items():
+                for position, data in positions.items():
+                    # Check if we are in the hotbar category
+                    if category == "hotbar":
+                        if not hotbar_keys.issubset(data.keys()):
+                            logging.warning(f"Missing keys in hotbar position {position}")
+                            logging.info("Inventory will be reset to default values")
                     else:
-                        self.warningPopup("Invalid position in loadGame inventory")
-                        self.logger.warning("Invalid position in loadGame inventory")
+                        if not required_keys.issubset(data.keys()):
+                            logging.warning(f"Missing keys in {category} position {position}")
+                            logging.info("Inventory will be reset to default values")
+        
+        except AttributeError:
+            logging.error("Inventory is not a dictionary")
+            logging.info("Creating a new inventory")
+    
+    def modifyInventory(self, inventory, item, quantity, position):
+        """
+        Modifies the players inventory
+
+        inventory: The players inventory
+        item: The item to be added to the inventory
+        quantity: The quantity of the item to be added
+        position: The position in the inventory to add the item
+        stackable: Whether the item is stackable or not
+        
+        """
+        try:
+            if not inventory["hotbar"][position]["isEquipped"]:
+                inventory["hotbar"][position]["item"] = item
+                inventory["hotbar"][position]["quantity"] = quantity
             else:
-                self.warningPopup("Invalid row in loadGame inventory")
-                self.logger.warning("Invalid row in loadGame inventory")
-        else:
-            self.warningPopup("No loadGame inventory data available")
-            self.logger.warning("No loadGame inventory data available")
+                logging.error("Cannot modify equipped item")
+        except KeyError:
+            logging.error("Invalid position")
+
+
+
+
+       
 
 
         
