@@ -1,15 +1,11 @@
 """
 Author Block
 Author: James Collum
-Date Creation: 29/05/2024
-Document Name: world.py
-Purpose of Document: This document will be used to handle terrain generation, world logic, world data, chunk loading and unloading, and world saving and loading
-Referenced Code:
-
-
-
+Date Creation: 01/06/2024
+Document Name: statistics.py
+Purpose of Document: This document will be used to generate statistics and modify for the game.
+References: None
 """
-
 
 import configparser
 import logging
@@ -23,11 +19,11 @@ from pathlib import Path
 from tempfile import TemporaryDirectory, mkdtemp
 from logging.handlers import RotatingFileHandler
 
-
-class world:
+class statistics:
     def __init__(self):
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
         self.savePath = str(Path.home() / "Documents" / "Afterlight" / "Saves")
+        self.statsPath = str(Path.home() / "Documents" / "Afterlight" / "Statistics")
         self.config = configparser.ConfigParser()
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
@@ -36,4 +32,3 @@ class world:
         self.misc = misc()
         self.warningPopup = self.misc.warningPopup
         self.errorPopup = self.misc.errorPopup
-    

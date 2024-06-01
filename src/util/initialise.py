@@ -43,7 +43,7 @@ class initalise:
             self.logPath = str(Path.home() / "Documents" / "Afterlight" / "Logs")
             self.tempPath = str(Path.home() / "Documents" / "Afterlight" / "Temp")
             self.assetPath = str(Path.home() / "Documents" / "Afterlight" / "Assets")
-            
+            self.statsPath = str(Path.home() / "Documents" / "Afterlight" / "Statistics")
 
             self.warningPopup = misc().warningPopup
             self.errorPopup = misc().errorPopup
@@ -101,7 +101,7 @@ class initalise:
                     }
             }
 
-    def setupLogging(self, maxBytes, backupCount):
+    def setupLogging(self, maxBytes, backupCount): # Function to setup logging - Must be called before logging is used and after the paths have been checked
         """
         Sets up the logging for the game
         """
@@ -133,6 +133,8 @@ class initalise:
             os.makedirs(self.backUpPath)
         if not os.path.exists(self.assetPath):
             os.makedirs(self.assetPath)
+        if not os.path.exists(self.statsPath):
+            os.makedirs(self.statsPath)
     
 
     def checkSettings(self):

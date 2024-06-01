@@ -30,7 +30,7 @@ class saveLoadGame:
         self.config = configparser.ConfigParser()
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
-        self.handler = RotatingFileHandler(str(Path.home() / "Documents" / "Afterlight" / "Logs" / "save.log"), maxBytes=100000, backupCount=5)
+        self.handler = RotatingFileHandler(str(Path.home() / "Documents" / "Afterlight" / "Logs" / "game.log"), maxBytes=100000, backupCount=5)
         self.logger.addHandler(self.handler)
     
     def saveGame(self, gameData, saveName):
@@ -80,7 +80,7 @@ class search:
         self.config = configparser.ConfigParser()
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
-        self.handler = RotatingFileHandler(str(Path.home() / "Documents" / "Afterlight" / "Logs" / "save.log"), maxBytes=100000, backupCount=5)
+        self.handler = RotatingFileHandler(str(Path.home() / "Documents" / "Afterlight" / "Logs" / "game.log"), maxBytes=100000, backupCount=5)
         self.logger.addHandler(self.handler)
     
     def listSaveGames(self):
@@ -148,7 +148,7 @@ class delete:
         self.config = configparser.ConfigParser()
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
-        self.handler = RotatingFileHandler(str(Path.home() / "Documents" / "Afterlight" / "Logs" / "save.log"), maxBytes=100000, backupCount=5)
+        self.handler = RotatingFileHandler(str(Path.home() / "Documents" / "Afterlight" / "Logs" / "game.log"), maxBytes=100000, backupCount=5)
         self.logger.addHandler(self.handler)
         self.errorPop = misc().errorPopup
     
@@ -183,7 +183,7 @@ class delete:
         Deletes the log files in the game directory
         """
         try:
-            os.remove(os.path.join(self.logPath, "save.log"))
+            os.remove(os.path.join(self.logPath, "game.log"))
             self.logger.info(f"Deleted log file")
             print(f"Deleted log file")
         
