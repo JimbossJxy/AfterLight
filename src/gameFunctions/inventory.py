@@ -44,19 +44,19 @@ class inventory:
 
         Only to be run on game load not new game or save game
         """
-        required_keys = {"item", "quantity", "description", "isStackable", "isUsable", "maxQuantity"}
-        hotbar_keys = required_keys | {"isEquipped"}  # Additional key for hotbar positions
+        _requiredKeys = {"item", "quantity", "description", "isStackable", "isUsable", "maxQuantity", "damage", "name", "brittleness", "percentage"}
+        _hotbarKeys = _requiredKeys | {"isEquipped"}  # Additional key for hotbar positions
         try:
             # Iterate through the main categories in the inventory
-            for category, positions in inventory.items():
-                for position, data in positions.items():
+            for category, _positions in inventory.items():
+                for position, data in _positions.items():
                     # Check if we are in the hotbar category
                     if category == "hotbar":
-                        if not hotbar_keys.issubset(data.keys()):
+                        if not _hotbarKeys.issubset(data.keys()):
                             logging.warning(f"Missing keys in hotbar position {position}")
                             logging.info("Inventory will be reset to default values")
                     else:
-                        if not required_keys.issubset(data.keys()):
+                        if not _requiredKeys.issubset(data.keys()):
                             logging.warning(f"Missing keys in {category} position {position}")
                             logging.info("Inventory will be reset to default values")
         
@@ -145,12 +145,14 @@ class inventory:
             return 1  # Item not found in items dictionary
 
         # Update existing stacks
-        remaining_quantity = self.updateExistingStack(item, quantity)
+        _remainingQuantity = self.updateExistingStack(item, quantity)
+        logging.info(f"Remaining quantity after updating existing stacks: {_remainingQuantity}")
 
         # Add new stacks
-        remaining_quantity = self.addNewStack(item, remaining_quantity)
+        _remainingQuantity = self.addNewStack(item, _remainingQuantity)
+        logging.info(f"Remaining quantity after adding new stacks: {_remainingQuantity}")
         
-        if remaining_quantity > 0:
+        if _remainingQuantity > 0:
             logging.info(f"No free slots available to add '{item}'.")
             return 3  # No free slots available
 
@@ -166,9 +168,12 @@ class inventory:
             "description": "",
             "isStackable": False,
             "isUsable": False,
-            "maxQuantity": 1,
+            "isEquipped": False,
+            'maxQuantity': 1,
+            "percentage": 0.0,
             "damage": 0.0,
-            "name": ""
+            "name": "",
+            "brittleness": 0.0
         }
         
         _data = variables.inventory[category][position]
@@ -250,19 +255,22 @@ class inventory:
                     return True
         return False
 
-    # Indexes the inventory - Will be used for GUI/Inventory management/etc
-    def indexInventory(self):
-        """
-        Indexes the players inventory - Done by checking the inventory variable from variables.py and listing the items to a dictionary with the key being the position in the inventory
-        """
-        pass    
 
     # Checks how many free slots are in the inventory - Will be used for picking up items/buying items/looting items/etc
     def freeSlots(self):
         """
         Checks how many free slots are in the players inventory - Done by checking how many "empty" Items are in the inventory variable from variables.py
         """
-        pass
+        logging.info("Checking how many free slots are in the inventory")
+        _freeSlots = 0
+        for category, positions in variables.inventory.items():
+            for position, data in positions.items():
+                if data["item"] == "empty":
+                    _freeSlots += 1
+
+        logging.info(f"Player has {_freeSlots} free slots in their inventory")
+        return _freeSlots
+
 
     
     # Checks if the inventory is full - Will be used for picking up items/buying items/looting items/etc
@@ -270,6 +278,14 @@ class inventory:
         """
         Checks if the players inventory is full - This is done by checking if the inventory variable from variables.py has no "empty" Items within it
         """
+        logging.info("Checking if inventory is full")
+        for category, positions in variables.inventory.items():
+            for position, data in positions.items():
+                if data["item"] == "empty":
+                    logging.info("Inventory is not full")
+                    return False
+        logging.info("Inventory is full")
+        return True
         
     
 
