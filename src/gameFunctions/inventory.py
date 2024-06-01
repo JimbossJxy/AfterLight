@@ -287,11 +287,3 @@ class inventory:
         logging.info("Inventory is full")
         return True
         
-    
-
-
-
-       
-
-
-        

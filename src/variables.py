@@ -7,7 +7,7 @@ Purpose of Document: This document will be used to store all global variables fo
 
 """
 
-loadGame = {"inventory": "test"}
+loadGame = {}
 
 # Default inventory layout - This will be used to create the inventory for the player or if the player has a corrupted inventory will be used to reset the inventory.
 inventory = {
