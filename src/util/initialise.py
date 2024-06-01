@@ -44,6 +44,7 @@ class initalise:
             self.tempPath = str(Path.home() / "Documents" / "Afterlight" / "Temp")
             self.assetPath = str(Path.home() / "Documents" / "Afterlight" / "Assets")
             self.statsPath = str(Path.home() / "Documents" / "Afterlight" / "Statistics")
+            self.settingsFile = str(Path.home() / "Documents" / "Afterlight" / "Settings" / "settings.ini")
 
             self.warningPopup = misc().warningPopup
             self.errorPopup = misc().errorPopup

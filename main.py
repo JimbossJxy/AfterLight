@@ -11,7 +11,7 @@ Referenced Code:
 
 import pygame
 import sys
-from player import player
+
 
 pygame.init()
 

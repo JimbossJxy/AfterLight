@@ -5,9 +5,6 @@ Date Creation: 28/05/2024
 Document Name: inventory.py
 Purpose of Document: This document will be used to handle the players inventory in the game.
 Referenced Code:
-
-
-
 """
 
 import configparser
@@ -36,6 +33,10 @@ class inventory:
         self.errorPopup = self.misc.errorPopup
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
         self.savePath = str(Path.home() / "Documents" / "Afterlight" / "Saves")
+        self.listener = None
+        self.takenSlots = 0
+        self.itemList = variables.items
+        
     
     def loadInventory(self, inventory):
         """
@@ -62,73 +63,216 @@ class inventory:
         except AttributeError:
             logging.error("Inventory is not a dictionary")
             logging.info("Creating a new inventory")
-    
-    def modifyInventory(self, inventory, item, quantity, position, description, isStackable, isUsable, maxQuantity, isEquipped=False):
+
+    # Listener for inventory changes - Will be used to update the inventory in the GUI
+    def notifyInventory(self):
         """
-        Modifies the players inventory
-
-        inventory: The players inventory
-        item: The item to be added to the inventory
-        quantity: The quantity of the item to be added
-        position: The position in the inventory to add the item
-        stackable: Whether the item is stackable or not
-        description: The description of the item
-        isUsable: Whether the item is usable or not
-        maxQuantity: The maximum quantity of the item that can be held in the inventory
-        is stackable: Whether the item is stackable or not
-        isEquipped: Whether the item is equipped or not - only for hotbar items
-
-        It will also check if the there is already an item in the inventory at the specified position if there is it will check if it is the same item, if it is equal to the max quantity of the item and if it is stackable.
-        if it is not at the max quantity it will add the quantity to the existing item. If it is at the max quantity or not stackable it will switch the item in the inventory with the that is being held by the mouse cursor.
-
+        Notifies the GUI of any inventory changes
         """
+        if self.listener is None:
+            logging.error("No listener set")
+            logging.info("Inventory will not be updated in the GUI")
+            return
+        
         try:
-            # Check if the item is already in the inventory
-            if inventory[position]["item"] == item:
-                # Check if the item is stackable
-                if inventory[position]["isStackable"]:
-                    # Check if the item is at the max quantity
-                    if inventory[position]["quantity"] < inventory[position]["maxQuantity"]:
-                        # Add the quantity to the item
-                        inventory[position]["quantity"] += quantity
-                    else:
-                        # Switch the item in the inventory with the item in the mouse cursor
-                        inventory[position]["item"] = item
-                        inventory[position]["quantity"] = quantity
-                        inventory[position]["description"] = description
-                        inventory[position]["isStackable"] = isStackable
-                        inventory[position]["isUsable"] = isUsable
-                        inventory[position]["maxQuantity"] = maxQuantity
-                else:
-                    # Switch the item in the inventory with the item in the mouse cursor
-                    inventory[position]["item"] = item
-                    inventory[position]["quantity"] = quantity
-                    inventory[position]["description"] = description
-                    inventory[position]["isStackable"] = isStackable
-                    inventory[position]["isUsable"] = isUsable
-                    inventory[position]["maxQuantity"] = maxQuantity
-            else:
-                # Switch the item in the inventory with the item in the mouse cursor
-                inventory[position]["item"] = item
-                inventory[position]["quantity"] = quantity
-                inventory[position]["description"] = description
-                inventory[position]["isStackable"] = isStackable
-                inventory[position]["isUsable"] = isUsable
-                inventory[position]["maxQuantity"] = maxQuantity
-        except KeyError:
-            logging.error("Invalid position in inventory")
-            logging.info("Item will not be added to the inventory")
+            self.listener.refresh() # Refresh the GUI - Needs to be implemented in the GUI
+            logging.info("Inventory updated in the GUI")
+        except TypeError as e:
+            logging.error(f"Error updating inventory in the GUI: {e}")
+            logging.info("Inventory will not be updated in the GUI")
 
-
-    def pickupItem(self, item, amount):
+    # Updates Existing Stack - Will be used for stacking items in the inventory
+    def updateExistingStack(self, item, quantity):
+        """
+        Updates an existing stack of an item in the inventory
+        """
+        logging.info(f"Updating existing stack of {item} with {quantity}")
+        _itemData = self.itemList[item]
+        _maxQuantity = _itemData['maxQuantity']
+        _remainingQuantity = quantity
+        
+        for _category, _positions in variables.inventory.items():
+            for _position, _data in _positions.items():
+                if _remainingQuantity <= 0:
+                    return _remainingQuantity
+                if _data["item"] == item:
+                    _availableSpace = _maxQuantity - _data["quantity"]
+                    if _availableSpace > 0:
+                        _addQuantity = min(_remainingQuantity, _availableSpace)
+                        _data["quantity"] += _addQuantity
+                        _remainingQuantity -= _addQuantity
+                        logging.info(f"Added {_addQuantity} '{item}' to {_category} {_position}, new quantity: {_data['quantity']}.")
+                       # self.notify_listeners('update', item, _addQuantity)
+        return _remainingQuantity
+    
+    # Adds a new stack of an item to the inventory - Will be used for stacking items in the inventory
+    def addNewStack(self, item, quantity):
+        """
+        Adds a new stack of an item to the inventory
+        """
+        logging.info(f"Adding new stack of {item} with {quantity}")
+        _itemData = self.itemList[item]
+        _maxQuantity = _itemData['maxQuantity']
+        _remainingQuantity = quantity
+        
+        for _category, _positions in variables.inventory.items():
+            for _position, _data in _positions.items():
+                if _remainingQuantity <= 0:
+                    return _remainingQuantity
+                if _data["item"] == "empty":
+                    _addQuantity = min(_remainingQuantity, _maxQuantity)
+                    _data["item"] = item
+                    _data["quantity"] = _addQuantity
+                    _remainingQuantity -= _addQuantity
+                    logging.info(f"Added {_addQuantity} '{item}' to {_category} {_position}.")
+                   # self.notify_listeners('add', item, _addQuantity)
+        return _remainingQuantity
+    
+    # Attempts to add an item to the inventory - Will be used for picking up items/buying items/looting items/etc
+    def addItem(self, item, quantity):
         """
         Adds an item to the players inventory
 
         item: The item to be added to the inventory - it will search through a dictionary of items to add the item description, stackability, usability and max quantity
-        amount: The quantity of the item to be added to the inventory
+        quantity: The quantity of the item to be added to the inventory - it will check if the item is stackable and if it is at the max quantity
+
+        It will check through the whole inventory to find the item. If the item exists it will check if the quantity of that stack is less than the max quantity of the item, if it is it will add the quantity to the stack. If the item does not exist it will check for an empty slot in the inventory and add the item to that slot.
+        It will check if there is a free slot from row 3 position 1 then row 3 position 2 etc to put the item in. If there are no free slots available return 3 for no free slots available.
+        """
+        logging.info(f"Adding {quantity} '{item}' to the inventory.")
+        if item not in self.itemList:
+            logging.error(f"Item '{item}' not found in items dictionary.")
+            return 1  # Item not found in items dictionary
+
+        # Update existing stacks
+        remaining_quantity = self.updateExistingStack(item, quantity)
+
+        # Add new stacks
+        remaining_quantity = self.addNewStack(item, remaining_quantity)
+        
+        if remaining_quantity > 0:
+            logging.info(f"No free slots available to add '{item}'.")
+            return 3  # No free slots available
+
+        logging.info(f"Added '{item}' to the inventory successfully.")
+        # self.notify_listeners('add_item', item, quantity - remaining_quantity) - Needs to be implemented in the GUI
+        return 0  # Success
+        
+    # Remove Stack - Will be used for dropping items/using items/trading items/etc
+    def removeStack(self, category, position, item, quantity):
+        logging.info(f"Removing {quantity} '{item}' from the inventory.")   
+        _emptyItem = {
+            "item": "empty",
+            "description": "",
+            "isStackable": False,
+            "isUsable": False,
+            "maxQuantity": 1,
+            "damage": 0.0,
+            "name": ""
+        }
+        
+        _data = variables.inventory[category][position]
+        if _data["item"] == item:
+            if _data["quantity"] <= quantity:
+                quantity = _data["quantity"]
+                variables.inventory[category][position] = _emptyItem.copy()
+                variables.inventory[category][position]["quantity"] = 0
+            else:
+                _data["quantity"] -= quantity
+
+            return quantity
+        logging.info(f"Item '{item}' not found in the inventory.")
+        return 1 # Error code for item not found in inventory 
+    
+    # Attempts to remove an item from the inventory - Will be used for dropping items/using items/trading items/etc
+    def removeItem(self, item, quantity):
+        """
+        Removes an item from the players inventory
+
+        item: The item to be removed from the inventory - Done by searching through the variables.py inventory dictionary for the item name
+        quantity: The quantity of the item to be removed from the inventory - Done by checking the quantity of the item in the inventory dictionary if the item exists, if it is equal to the quantity to be removed it will remove the item from the inventory, if it is less than the quantity to be removed it will remove the item from the inventory (unless trading then wont remove item) and remove the remaining quantity from the quantity to be removed
+        
+        It will check through the whole inventory to find the item. If the item exists it will check if the quantity of that stack is equal to the quantity to be removed,
+        if there are more than 1 stack of the item it will add the quantity of the other stacks to the total quantity of that item. Then it will check if the total quantity is equal to the quantity to be removed, if it is it will check the size of each of the stacks
+        and remove the stack that is equal to the quantity to be removed. If the total quantity is more than a single stack it will remove the quantity from each stack until the quantity to be removed is 0. This will be done by removing from row 3 position 1 then row 3 position 2 etc for that item.
+
+        """
+        logging.info(f"Removing {quantity} '{item}' from the inventory.")
+        _totalQuantity = 0
+        _positionsUpdate = []
+
+        # Traverse the inventory to calculate total quantity and positions
+        for _category, _positions in variables.inventory.items():
+            for position, data in _positions.items():
+                if data["item"] == item:
+                    _totalQuantity += data["quantity"]
+                    _positionsUpdate.append((_category, position))
+
+        # If the item doesn't exist in the inventory
+        if _totalQuantity == 0:
+            logging.info(f"Item '{item}' not found in the inventory.")
+            print(f"Item '{item}' not found in the inventory.")
+            return 1  # Error code for item not found in inventory
+
+        # If quantity to be removed is more than available
+        if quantity > _totalQuantity:
+            logging.info(f"Cannot remove {quantity} '{item}' as only {_totalQuantity} available.")
+            print(f"Cannot remove {quantity} '{item}' as only {_totalQuantity} available.")
+            return 2, _totalQuantity  # Error code for insufficient quantity and return the total quantity available
+
+        # Remove the items from inventory
+        for _category, position in _positionsUpdate:
+            if quantity <= 0:
+                break  # If quantity is 0, break the loop
+            _quantityRemoved = self.removeStack(_category, position, item, quantity)
+            quantity -= _quantityRemoved  # Update the quantity to be removed
+
+        logging.info(f"Removed {quantity} '{item}' from the inventory.")
+        # self.notify_listeners('remove', item, quantity)
+        return 0  # Success code for item removed
+        
+
+    # Checks if the player has an item in the inventory - Will be used for quests/achievements/etc
+    def hasItem(self, item, quantity):
+        """
+        Checks if the player has the item in the inventory
+
+        item: The item to be checked in the inventory - Done by searching through the variables.py inventory dictionary for the item name
+        quantity: The quantity of the item to be checked in the inventory - Done by checking the quantity of the item in the inventory dictionary if the item exists
+        
+        Returns: True if the player has the item in the inventory, False if the player does not have the item in the inventory
+        """
+        logging.info(f"Checking if player has {quantity} {item}")
+        for i in variables.inventory:
+            if i["item"] == item:
+                if i["quantity"] >= quantity:
+                    logging.info(f"Player has {quantity} of {item}")
+                    return True
+        return False
+
+    # Indexes the inventory - Will be used for GUI/Inventory management/etc
+    def indexInventory(self):
+        """
+        Indexes the players inventory - Done by checking the inventory variable from variables.py and listing the items to a dictionary with the key being the position in the inventory
+        """
+        pass    
+
+    # Checks how many free slots are in the inventory - Will be used for picking up items/buying items/looting items/etc
+    def freeSlots(self):
+        """
+        Checks how many free slots are in the players inventory - Done by checking how many "empty" Items are in the inventory variable from variables.py
+        """
+        pass
+
+    
+    # Checks if the inventory is full - Will be used for picking up items/buying items/looting items/etc
+    def isFull(self):
+        """
+        Checks if the players inventory is full - This is done by checking if the inventory variable from variables.py has no "empty" Items within it
         """
         
-        
+    
+
 
 
        
