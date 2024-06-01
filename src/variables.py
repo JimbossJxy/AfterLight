@@ -902,7 +902,30 @@ items = {
         "name": "Drill",
         "brittleness": 0.05
     },
-    
+
+    # Misc
+    "handmadetorch": {
+        "description": "A hand made torch, a light source. Very useful in dark places. Does require fuel.",
+        "isStackable": False,
+        "isUsable": False,
+        "maxQuantity": 1,
+        "damage": 0.0,
+        "percentage": 1.0,
+        "name": "Handmade Torch",
+        "brittleness": 0.0
+    },
+    "flashlight": {
+        "description": "A flashlight, a light source. Very useful in dark places. Does require batteries.",
+        "isStackable": False,
+        "isUsable": False,
+        "maxQuantity": 1,
+        "damage": 0.0,
+        "percentage": 1.0,
+        "name": "Flashlight",
+        "brittleness": 0.0
+    },
+
+        
     # Armour
     
     # Helmets
@@ -1266,46 +1289,340 @@ items = {
         "brittleness": 0.25
     },
 
+    # Medical supplies
+
+    # Bandages
+    "bandage": {
+        "description": "A bandage, used to heal small wounds.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 16,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Bandage",
+        "brittleness": 0.0
+    },
+    "medkit": {
+        "description": "A medkit, used to heal large wounds.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 8,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Medkit",
+        "brittleness": 0.0
+    },
+
+    # Medicine
+    "naturalmedicine": {
+        "description": "Natural medicine, used to heal small wounds.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 16,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Natural Medicine",
+        "brittleness": 0.0
+    },
+    "painkillers": {
+        "description": "Painkillers, used to reduce pain and heal small wounds.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 8,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Painkillers",
+        "brittleness": 0.0
+    },
+    "antirad": {
+        "description": "Anti radiation pills, used to reduce radiation poisoning.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 8,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Anti Radiation Pills",
+        "brittleness": 0.0
+    },
+    "stimpack": {
+        "description": "Stimpack, used to heal large wounds and increase health for a short period of time.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 8,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Stimpack",
+        "brittleness": 0.0
+    },
+
     # Food
+
+    # Fruits
     "apple": {
         "description": "An apple",
         "isStackable": True,
         "isUsable": True,
-        "maxQuantity": 64
+        "maxQuantity": 16,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Apple",
     },
-    "bread": {
-        "description": "Bread",
+    "radioana": {
+        "description": "A radioana, a rare fruit only found in the radioactive wastelands. Its effects are unknown.",
         "isStackable": True,
         "isUsable": True,
-        "maxQuantity": 64
+        "maxQuantity": 16,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Radioana",
     },
-    
-    # Armour
-    "helmet": {
-        "description": "A helmet",
-        "isStackable": False,
+    "morange": {
+        "description": "A morange, a rare fruit only found in the misty forests.",
+        "isStackable": True,
         "isUsable": True,
-        "maxQuantity": 1
+        "maxQuantity": 16,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Morange",
     },
-    "chestplate": {
-        "description": "A chestplate",
-        "isStackable": False,
+    "pomberry": {
+        "description": "A pomberry, a common fruit found in the wastelands.",
+        "isStackable": True,
         "isUsable": True,
-        "maxQuantity": 1
+        "maxQuantity": 32,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Pomberry",
     },
-    "leggings": {
-        "description": "Leggings",
-        "isStackable": False,
+    "banapple": {
+        "description": "A banapple, found commonly on the shores of the wastelands.",
+        "isStackable": True,
         "isUsable": True,
-        "maxQuantity": 1
-    },
-    "boots": {
-        "description": "Boots",
-        "isStackable": False,
-        "isUsable": True,
-        "maxQuantity": 1
+        "maxQuantity": 16,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Banapple",
     },
 
+    # Vegetables
+    "misteriousroot": {
+        "description": "A misterious root, a rare vegetable only found in the misty forests. Its effects are unknown.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 16,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Misterious Root",
+    },
+    "potato": {
+        "description": "A potato, a common vegetable found in the wastelands.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 32,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Potato",
+    },
+    "bomroot": {
+        "description": "A bomroot, a mutant vegetable from unknown origins.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 16,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Bomroot",
+    },
+    "carrot": {
+        "description": "A carrot, a common vegetable found in the wastelands.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 32,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Carrot",
+    },
+
+    # Raw Meat
+    "mysterymeat": {
+        "description": "Mystery meat from unknon origins. Its effects are unknown.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 16,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Mystery Meat",
+    },
+    "rawmow": {
+        "description": "Raw mow meat, a common meat found in the wastelands.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 32,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Raw Mow",
+    },
+    "rawplagoose": {
+        "description": "Raw plagoose meat, a common meat found in the wastelands.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 32,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Raw Plagoose",
+    },
+    "rawbom": {
+        "description": "Raw bom meat, a common meat found in the wastelands.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 32,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Raw Bom",
+    },
+
+    # Cooked Meat
+    "mowsteak": {
+        "description": "Mow steak, a common meat found in the wastelands.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 32,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Mow Steak",
+    },
+    "plagoose": {
+        "description": "Plagoose, a common meat found in the wastelands.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 32,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Plagoose",
+    },
+    "bomsteak": {
+        "description": "Bom steak, a common meat found in the wastelands.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 32,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Bom Steak",
+    },
+    "cookedmysterymeat": {
+        "description": "Mystery meat from unknon origins. Its effects are unknown.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 16,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Cooked Mystery Meat",
+    },
+
+    # Grains
+    "mutantwheat": {
+        "description": "Mutant wheat, similar to normal wheat just a bit more radioactive.",
+        "isStackable": True,
+        "isUsable": False,
+        "maxQuantity": 32,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Mutant Wheat",
+    },
+    "mutantrice": {
+        "description": "Mutant rice, similar to normal rice just a bit more radioactive.",
+        "isStackable": True,
+        "isUsable": False,
+        "maxQuantity": 32,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Mutant Rice",
+    },
+    "mutantcorn": {
+        "description": "Mutant corn, similar to normal corn just a bit more radioactive.",
+        "isStackable": True,
+        "isUsable": False,
+        "maxQuantity": 32,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Mutant Corn",
+    },
+
+    # Grain Products
+    "bread": {
+        "description": "Bread, made from mutant wheat.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 32,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Bread",
+    },
+    "ricecake": {
+        "description": "Rice cake, made from mutant rice.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 32,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Rice Cake",
+    },
+    "cornbread": {
+        "description": "Corn bread, made from mutant corn.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 32,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Corn Bread",
+    },
+    "specialcake": {
+        "description": "Special cake, made from the mutated grains and products of the wastelands, neatly presented with delicious frosting.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 16,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Special Cake",
+    },
+
+    # Drinks
+    "waterbottle": {
+        "description": "A water bottle, can be refilled at any water source. Beware of filling it comtaminated water.",
+        "isStackable": False,
+        "isUsable": True,
+        "maxQuantity": 1,
+        "damage": 0.0,
+        "percentage": 1.0,
+        "name": "Water Bottle",
+    },
+    "radiotapop": {
+        "description": "Radioactive soda, a common beverage found in the wastelands.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 16,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Radiota-Pop",
+    },
+    "fruitjuice": {
+        "description": "Fruit juice, made from the fruits of the wastelands.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 16,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Fruit Juice",
+    },
+    "Milch": {
+        "description": "Milch, made from the wild mutated cows of the wastelands.",
+        "isStackable": True,
+        "isUsable": True,
+        "maxQuantity": 16,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Milch",
+    },
+    
     # Materials - Raw/Proccessed Meterials
 
     # Wood
@@ -1313,25 +1630,37 @@ items = {
         "description": "A wooden log",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Log",
     },
     "woodplank": {
         "description": "A wooden plank",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Plank",
     },
     "stick": {
         "description": "A stick",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Stick",
     },
     "twig": {
         "description": "A twig",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Twig",
     },
 
     # Stone
@@ -1339,56 +1668,83 @@ items = {
         "description": "A stone",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Stone",
     },
     "rock": {
         "description": "A rock",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 1.25,
+        "percentage": 0.0,
+        "name": "Rock",
     },
     # Iron/Steel
     "rawiron": {
         "description": "Raw iron",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 1.0,
+        "name": "Raw Iron",
     },
     "ironingot": {
         "description": "An iron ingot",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Iron Ingot",
     },
     "ironnugget": {
         "description": "An iron nugget",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Iron Nugget",
     },
     "ironrod": {
         "description": "An iron rod",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Iron Rod",
     },
     "steelbar": {
         "description": "A steel bar",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Steel Bar",
     },
     "steelrod": {
         "description": "A steel rod",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Steel Rod",
     },
     "steelplate": {
         "description": "A steel plate",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Steel Plate",
     },
 
     # Copper
@@ -1396,25 +1752,37 @@ items = {
         "description": "Raw copper",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 1.0,
+        "name": "Raw Copper",
     },
     "copperingot": {
         "description": "A copper ingot",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Copper Ingot",
     },
     "copperwire": {
         "description": "Copper wire",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Copper Wire",
     },
     "copperrod": {
         "description": "A copper rod",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Copper Rod",
     },
 
     # Hardite
@@ -1422,13 +1790,19 @@ items = {
         "description": "Raw hardite",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Raw Hardite",
     },
     "harditeingot": {
         "description": "A hardite ingot",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Hardite Ingot",
     },
     "harditerod": {
         "description": "A hardite rod",
@@ -1440,7 +1814,10 @@ items = {
         "description": "A hardite plate",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Hardite Plate",
     },
 
     # Aluminium
@@ -1448,31 +1825,46 @@ items = {
         "description": "Raw aluminium",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 1.0,
+        "name": "Raw Aluminium",
     },
     "aluminiumingot": {
         "description": "An aluminium ingot",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Aluminium Ingot",
     },
     "aluminiumrod": {
         "description": "An aluminium rod",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Aluminium Rod",
     },
     "aluminiumplate": {
         "description": "An aluminium plate",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Aluminium Plate",
     },
     "aluminiumwire": {
         "description": "An aluminium wire",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Aluminium Wire",
     },
 
     # Titanium
@@ -1480,25 +1872,37 @@ items = {
         "description": "Raw titanium",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 1.0,
+        "name": "Raw Titanium",
     },
     "titaniumingot": {
         "description": "A titanium ingot",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Titanium Ingot",
     },
     "titaniumrod": {
         "description": "A titanium rod",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Titanium Rod",
     },
     "titaniumplate": {
         "description": "A titanium plate",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Titanium Plate",
     },
 
 
@@ -1507,40 +1911,103 @@ items = {
         "description": "A scrap circuit",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Scrap Circuit",
     },
     "scrapbattery": {
         "description": "A scrap battery",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Scrap Battery",
     },
     "scrapmetal": {
         "description": "Scrap metal",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Scrap Metal",
     },
     "scrapplastic": {
         "name": "Used Plastic",
         "description": "Scrap plastic",
         "isStackable": True,
         "isUsable": False,
-        "maxQuantity": 64
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
     },
 
-
-    # Misc
-    "torch": {
-        "description": "A torch",
+    # Electronics
+    "circuitboard": {
+        "description": "A circuit board used to make electronic devices.",
         "isStackable": True,
-        "isUsable": True,
-        "maxQuantity": 1
+        "isUsable": False,
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Circuit Board",
     },
-    "batteries" : {
-        "description": "Batteries",
+    "microchip": {
+        "description": "A microchip used to make circuit boards.",
         "isStackable": True,
-        "isUsable": True,
-        "maxQuantity": 64
-    }
+        "isUsable": False,
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Microchip",
+    },
+    "battery": {
+        "description": "A battery used to power electronic devices.",
+        "isStackable": True,
+        "isUsable": False,
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Battery",
+    },
+
+    # Fuel
+    "biofuel": {
+        "description": "Biofuel, used to power vehicles and generators. Can be made from organic materials.",
+        "isStackable": True,
+        "isUsable": False,
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Biofuel",
+    },
+    "gasoline": {
+        "description": "Gasoline, used to power vehicles and generators. Only found in fuel stations.",
+        "isStackable": True,
+        "isUsable": False,
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Gasoline",
+    },
+    "diesel": {
+        "description": "Diesel, used to power vehicles and generators. Only found in fuel stations.",
+        "isStackable": True,
+        "isUsable": False,
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Diesel",
+    },
+    "jetfuel": {
+        "description": "Jet fuel, used to power aircraft and other devices. Only found in the abandoned airfields.",
+        "isStackable": True,
+        "isUsable": False,
+        "maxQuantity": 64,
+        "damage": 0.0,
+        "percentage": 0.0,
+        "name": "Jet Fuel",
+    },
 }
