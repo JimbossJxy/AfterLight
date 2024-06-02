@@ -12,9 +12,12 @@ Referenced Code:
 """
 Imported Libraries - No need to install any libraries as they are all built in
 """
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 import ctypes
 import logging
-import os
 import pathlib
 import subprocess
 import shutil
@@ -26,12 +29,25 @@ from logging.handlers import RotatingFileHandler
 
 class misc:
     def __init__(self):
-        self.logger = logging.getLogger(__name__)
+        # Boilerplate code
+
+        # Logging setup
+        self.handler = RotatingFileHandler(self.logPath + "/game.log", maxBytes=5242880, backupCount=5)
+        self.formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        self.handler.setFormatter(self.formatter)
+        self.logger = logging.getLogger()
         self.logger.setLevel(logging.DEBUG)
-        self.handler = RotatingFileHandler(str(Path.home() / "Documents" / "Afterlight" / "Logs" / "game.log"), maxBytes=100000, backupCount=5)
         self.logger.addHandler(self.handler)
-        self.logger.info("Logger created")
+        self.logger.addHandler(logging.StreamHandler())
+        self.logger.info("Logging has been setup for the menu class.")
+
+        # Other boilerplate code
+        self.misc = misc()
+        self.warningPopup = self.misc.warningPopup
+        self.errorPopup = self.misc.errorPopup
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
+
+        # Other Objects - These are objects that are used by the class
 
     def warningPopup(self, title, message):
         # Constants for the warning MessageBox
@@ -43,6 +59,5 @@ class misc:
         # Constrains for Error message box
         _MessageboxOK = 0x0
         _MessageboxIconError = 0x10
-        winsound.PlaySound("SystemHand", winsound.SND_ALIAS)
         ctypes.windll.user32.MessageBoxW(0, message, "Error", _MessageboxOK | _MessageboxIconError)
 

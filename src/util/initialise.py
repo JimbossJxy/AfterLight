@@ -13,14 +13,15 @@ Referenced Code:
     Importing the required libraries for the code to run
     Need to change to it checks if the required packages are installed and if not installs them
 """
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 import configparser
 import ctypes
 import logging
-import misc
-import os
 import pathlib
 import subprocess
-import sys
 import shutil
 import webbrowser
 import zipfile
@@ -102,7 +103,7 @@ class initalise:
                     }
             }
 
-    def setupLogging(self, maxBytes, backupCount): # Function to setup logging - Must be called before logging is used and after the paths have been checked
+    def setupLogging(self, maxBytes=5242880, backupCount=5): # Function to setup logging - Must be called before logging is used and after the paths have been checked
         """
         Sets up the logging for the game
         """

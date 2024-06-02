@@ -2,16 +2,20 @@
 Author Block
 Author: James Collum
 Date Creation: 16/05/2024
-Document Name: saving.py
+Document Name: gameDataHandle.py
 Purpose of Document: This document will be used to save the game data to a file so that the user can load the game from where they left off.
 Referenced Code:
 
 
 
 """
+
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 import configparser
 import logging
-import os
 import pathlib
 import pickle
 import subprocess
@@ -25,13 +29,28 @@ from src.util.misc import misc
 
 class saveLoadGame:
     def __init__(self):
-        self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
-        self.savePath = str(Path.home() / "Documents" / "Afterlight" / "Saves")
-        self.config = configparser.ConfigParser()
-        self.logger = logging.getLogger(__name__)
+        # Boilerplate code
+
+        # Logging setup
+        self.handler = RotatingFileHandler(self.logPath + "/game.log", maxBytes=5242880, backupCount=5)
+        self.formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        self.handler.setFormatter(self.formatter)
+        self.logger = logging.getLogger()
         self.logger.setLevel(logging.DEBUG)
-        self.handler = RotatingFileHandler(str(Path.home() / "Documents" / "Afterlight" / "Logs" / "game.log"), maxBytes=100000, backupCount=5)
         self.logger.addHandler(self.handler)
+        self.logger.addHandler(logging.StreamHandler())
+        self.logger.info("Logging has been setup for the menu class.")
+
+        # Other boilerplate code
+        self.misc = misc()
+        self.warningPopup = self.misc.warningPopup
+        self.errorPopup = self.misc.errorPopup
+        self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
+
+        # Other Objects - These are objects that are used by the class
+
+        self.savePath = str(Path.home() / "Documents" / "Afterlight" / "Saves")
+        self.statsPath = str(Path.home() / "Documents" / "Afterlight" / "Statistics")
     
     def saveGame(self, gameData, saveName):
         """
@@ -191,6 +210,23 @@ class delete:
             self.logger.error(f"Error deleting log file: {e}")
             print(f"Error deleting log file: {e}")
             self.errorPop(f"Error deleting log file: {e}")
+
+    def deleteStatistics(self):
+        """
+        Deletes the statistics file in the game directory
+        """
+        # Checks all xml files in the statistics directory
+        try:
+            for file in os.listdir(self.statsPath):
+                if file.endswith(".xml"):
+                    os.remove(os.path.join(self.statsPath, file))
+                    self.logger.info(f"Deleted statistics file")
+                    
+        
+        except Exception as e:
+            self.logger.error(f"Error deleting statistics file: {e}")
+            self.errorPop(f"Error deleting statistics file: {e}")
+            
 
 
 

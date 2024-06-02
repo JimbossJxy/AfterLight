@@ -1,14 +1,12 @@
 """
 Author Block
 Author: James Collum
-Date Creation: 29/05/2024
-Document Name: hud.py
-Purpose of Document: This document will be used to handle any HUD rendering and communication from the HUD to the game.
-Referenced Code:
-
-
+Date Creation: 02/06/2024
+Document Name: variables.py
+Purpose of Document: This document will be used to processs physics for the game.
 
 """
+
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -25,8 +23,8 @@ from pathlib import Path
 from logging.handlers import RotatingFileHandler
 from src.util.misc import misc
 
-class hud:
-    def __init__(self):
+class physics:
+    def __init__(self) :
         # Boilerplate code
 
         # Logging setup
@@ -46,4 +44,5 @@ class hud:
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
 
         # Other Objects - These are objects that are used by the class
-        # hud specific code
+    
+    #class collisions:
