@@ -15,42 +15,28 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 import configparser
-import logging
-import pathlib
 import pickle
-import subprocess
-import shutil
-import zipfile
 from datetime import datetime
 from pathlib import Path
-from logging.handlers import RotatingFileHandler
 from src.util.misc import misc
+from src.util.afterlightLogging import afterlightLogging
+
 
 
 class saveLoadGame:
     def __init__(self):
         # Boilerplate code
-
-        # Logging setup
-        self.handler = RotatingFileHandler(self.logPath + "/game.log", maxBytes=5242880, backupCount=5)
-        self.formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        self.handler.setFormatter(self.formatter)
-        self.logger = logging.getLogger()
-        self.logger.setLevel(logging.DEBUG)
-        self.logger.addHandler(self.handler)
-        self.logger.addHandler(logging.StreamHandler())
-        self.logger.info("Logging has been setup for the menu class.")
-
-        # Other boilerplate code
         self.misc = misc()
         self.warningPopup = self.misc.warningPopup
-        self.errorPopup = self.misc.errorPopup
+        self.errorPopupup = self.misc.errorPopupup
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
+        self.logger = afterlightLogging()
 
         # Other Objects - These are objects that are used by the class
 
         self.savePath = str(Path.home() / "Documents" / "Afterlight" / "Saves")
         self.statsPath = str(Path.home() / "Documents" / "Afterlight" / "Statistics")
+        
     
     def saveGame(self, gameData, saveName):
         """
@@ -93,14 +79,16 @@ Searches for files within directories
 """
 class search:
     def __init__(self):
+        # Boilerplate code
+        self.misc = misc()
+        self.warningPopup = self.misc.warningPopup
+        self.errorPopupup = self.misc.errorPopup
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
+        self.logger = afterlightLogging()
+
+        # Other Objects - These are objects that are used by the class
         self.savePath = str(Path.home() / "Documents" / "Afterlight" / "Saves")
         self.gameConfigPath = str(Path.home() / "Documents" / "Afterlight" / "GameConfig")
-        self.config = configparser.ConfigParser()
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
-        self.handler = RotatingFileHandler(str(Path.home() / "Documents" / "Afterlight" / "Logs" / "game.log"), maxBytes=100000, backupCount=5)
-        self.logger.addHandler(self.handler)
     
     def listSaveGames(self):
         """
@@ -111,20 +99,20 @@ class search:
             self.logger.info(f"Searching for save games")
             print(f"Searching for save games")
             if saveFiles:
-                logging.info(f"Current save games:")
+                self.logger.info(f"Current save games:")
                 print(f"Current save games:")
                 for saveFile in saveFiles:
-                    logging.info(f"{saveFile}")
+                    self.logger.info(f"{saveFile}")
                     print(f"{saveFile}")
                 return saveFiles
             
             else:
-                logging.info(f"No save games found")
+                self.logger.info(f"No save games found")
                 print(f"No save games found")
                 return 0
         
         except Exception as e:
-            logging.error(f"Error listing save games: {e}")
+            self.logger.error(f"Error listing save games: {e}")
             print(f"Error listing save games: {e}")
             return 0
     
@@ -137,20 +125,20 @@ class search:
             self.logger.info(f"Searching for game config files")
             print(f"Searching for game config files")
             if configFiles:
-                logging.info(f"Current game config files:")
+                self.logger.info(f"Current game config files:")
                 print(f"Current game config files:")
                 for configFile in configFiles:
-                    logging.info(f"{configFile}")
+                    self.logger.info(f"{configFile}")
                     print(f"{configFile}")
                 return configFiles
             
             else:
-                logging.info(f"No game config files found")
+                self.logger.info(f"No game config files found")
                 print(f"No game config files found")
                 return 0
         
         except Exception as e:
-            logging.error(f"Error listing game config files: {e}")
+            self.logger.error(f"Error listing game config files: {e}")
             print(f"Error listing game config files: {e}")
             return 0
     
@@ -160,16 +148,18 @@ Deletes files within directories
 """
 class delete:
     def __init__(self):
+        # Boilerplate code
+        self.misc = misc()
+        self.warningPopup = self.misc.warningPopup
+        self.errorPopup = self.misc.errorPopup
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
+        self.logger = afterlightLogging()
+
+        # Other Objects - These are objects that are used by the class
         self.savePath = str(Path.home() / "Documents" / "Afterlight" / "Saves")
         self.gameConfigPath = str(Path.home() / "Documents" / "Afterlight" / "GameConfig")
         self.logPath = str(Path.home() / "Documents" / "Afterlight" / "Logs")
-        self.config = configparser.ConfigParser()
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
-        self.handler = RotatingFileHandler(str(Path.home() / "Documents" / "Afterlight" / "Logs" / "game.log"), maxBytes=100000, backupCount=5)
-        self.logger.addHandler(self.handler)
-        self.errorPop = misc().errorPopup
+        self.statsPath = str(Path.home() / "Documents" / "Afterlight" / "Statistics")
     
     def deleteSaveGame(self, saveName):
         """
@@ -209,7 +199,7 @@ class delete:
         except Exception as e:
             self.logger.error(f"Error deleting log file: {e}")
             print(f"Error deleting log file: {e}")
-            self.errorPop(f"Error deleting log file: {e}")
+            self.errorPopup(f"Error deleting log file: {e}")
 
     def deleteStatistics(self):
         """
@@ -225,7 +215,7 @@ class delete:
         
         except Exception as e:
             self.logger.error(f"Error deleting statistics file: {e}")
-            self.errorPop(f"Error deleting statistics file: {e}")
+            self.errorPopup(f"Error deleting statistics file: {e}")
             
 
 

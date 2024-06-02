@@ -18,8 +18,6 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 import configparser
-import ctypes
-import logging
 import pathlib
 import subprocess
 import shutil
@@ -28,8 +26,7 @@ import zipfile
 from misc import misc
 from pathlib import Path
 from tempfile import TemporaryDirectory, mkdtemp
-from logging.handlers import RotatingFileHandler
-
+from src.util.afterlightLogging import afterlightLogging
 
 
 class initalise:
@@ -49,6 +46,7 @@ class initalise:
 
             self.warningPopup = misc().warningPopup
             self.errorPopup = misc().errorPopup
+            self.logger = afterlightLogging()
             
             self.defaultSettings = {
                   "displaySettings": {
@@ -102,19 +100,6 @@ class initalise:
                           "maxFiles": 10,
                     }
             }
-
-    def setupLogging(self, maxBytes=5242880, backupCount=5): # Function to setup logging - Must be called before logging is used and after the paths have been checked
-        """
-        Sets up the logging for the game
-        """
-        handler = RotatingFileHandler(self.logPath + "/game.log", maxBytes=maxBytes, backupCount=backupCount)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        logger = logging.getLogger()
-        logger.setLevel(logging.DEBUG)
-        logger.addHandler(handler)
-        logger.addHandler(logging.StreamHandler())
-        logger.info("Logging has been setup")
 
     
     def checkPaths(self):
@@ -194,7 +179,7 @@ class initalise:
             }
             with open(self.settingsFile, 'w') as configfile:
                 config.write(configfile)
-                logging.info("Wrote default settings to settings file")
+                self.logger.info("Wrote default settings to settings file")
                 print("Wrote default settings to settings file")
 
     # Function to check if the required packages are installed and if not installs them
@@ -207,14 +192,14 @@ class initalise:
         for package in required_packages:
             try:
                 __import__(package)
-                logging.info(f"{package} is installed")
+                self.logger.info(f"{package} is installed")
                 print(f"{package} is installed")
             except ImportError: 
                 print(f"{package} is not installed. Installing...")
-                logging.info(f"{package} is not installed. Installing...")
+                self.logger.info(f"{package} is not installed. Installing...")
                 subprocess.check_call(['pip', 'install', package])
                 print(f"{package} has been installed.")
-                logging.info(f"{package} has been installed.")
+                self.logger.info(f"{package} has been installed.")
 
 
     
@@ -226,34 +211,34 @@ class initalise:
         _zipUrl = "https://github.com/JimbossJxy/afterlightAssets/archive/refs/heads/main.zip"
         try:
             # Download the zip file from the github repository
-            logging.info("Downloading assets from github")
+            self.logger.info("Downloading assets from github")
             _getZip = requests.get(_zipUrl)
             _getZip.raise_for_status()
             
             # Verify that the content type is a zip file
             if _getZip.headers['Content-Type'] != 'application/zip':
-                logging.error("Error downloading assets: Content type is not a zip file")
+                self.logger.error("Error downloading assets: Content type is not a zip file")
                 print("Error downloading assets: Content type is not a zip file")
                 raise ValueError("Content type is not a zip file")
 
             # Extract the zip file to the temp folder
             tempDir = mkdtemp()
-            logging.info(f"Created temp folder: {tempDir}")
+            self.logger.info(f"Created temp folder: {tempDir}")
             print(f"Created temp folder: {tempDir}")
 
             
             _zipPath = os.path.join(tempDir, "gameFiles.zip")
             with open(_zipPath, 'wb') as _zipFile:
                 _zipFile.write(_getZip.content)
-                logging.info(f"Extracting assets to the temp folder: {_zipPath}")
+                self.logger.info(f"Extracting assets to the temp folder: {_zipPath}")
                 print(f"Extracting assets to the temp folder: {_zipPath}")
 
             # Extract the zip file to temparory folder
             with zipfile.ZipFile(_zipPath, 'r') as _zip:
                 tempExtractPath = os.path.join(tempDir, "extracted")
-                logging.info(f"Temp path: {tempExtractPath}")
+                self.logger.info(f"Temp path: {tempExtractPath}")
                 _zip.extractall(tempExtractPath)
-                logging.info(f"Extracted assets to {tempExtractPath}")
+                self.logger.info(f"Extracted assets to {tempExtractPath}")
                 print(f"Extracted assets to {tempExtractPath}")
                 
                 # Check if all assests exist in assets folder
@@ -271,23 +256,23 @@ class initalise:
 
                 # If assets do not exist, clear assets folder and copy them to the assets folder
                 if not assetsExist:
-                    logging.info(f"Missing assets detected, clearing assets folder: {self.assetPath}")
+                    self.logger.info(f"Missing assets detected, clearing assets folder: {self.assetPath}")
                     print(f"Missing assets detected, clearing assets folder: {self.assetPath}")
                     if os.path.exists(self.assetPath):
                         shutil.rmtree(self.assetPath)
-                        logging.info(f"Deleted assets folder: {self.assetPath}")
+                        self.logger.info(f"Deleted assets folder: {self.assetPath}")
                         print(f"Deleted assets folder: {self.assetPath}")
 
                     os.makedirs(self.assetPath)
-                    logging.info(f"Created assets folder: {self.assetPath}")
+                    self.logger.info(f"Created assets folder: {self.assetPath}")
                     print(f"Created assets folder: {self.assetPath}")
-                    logging.info(f"Copying assets to assets folder: {self.assetPath}")
+                    self.logger.info(f"Copying assets to assets folder: {self.assetPath}")
 
                     for root, directories, files in os.walk(tempExtractPath):
                         for _ in directories:
                             destinationFolderPath = os.path.join(self.assetPath, os.path.relpath(root, tempExtractPath))
                             os.makedirs(destinationFolderPath, exist_ok=True)
-                            logging.info(f"Created directory: {destinationFolderPath}")
+                            self.logger.info(f"Created directory: {destinationFolderPath}")
                             print(f"Created directory: {destinationFolderPath}")
                         for fileName in files:
                             relativePath = os.path.relpath(os.path.join(root, fileName), tempExtractPath)
@@ -295,7 +280,7 @@ class initalise:
                             os.makedirs(os.path.dirname(destinationFilePath), exist_ok=True)
                             shutil.copy2(os.path.join(root, fileName), destinationFilePath)
                     
-            logging.info("Assets have been downloaded and extracted")
+            self.logger.info("Assets have been downloaded and extracted")
             print("Assets have been downloaded and extracted")
 
             # Remove the temp folder for cleanup
@@ -303,19 +288,19 @@ class initalise:
         
         # Error handling
         except requests.exceptions.RequestException as e:
-            logging.error(f"Error downloading assets: {e}")
+            self.logger.error(f"Error downloading assets: {e}")
             print(f"Error downloading assets: {e}")
             self.errorPopup(f"Error downloading assets{e}")
             raise ValueError("Error downloading assets")
         
         except zipfile.BadZipFile as e:
-            logging.error(f"Error extracting assets: {e}")
+            self.logger.error(f"Error extracting assets: {e}")
             print(f"Error extracting assets: {e}")
             self.errorPopup(f"Error extracting assets: {e}")
             raise ValueError("Error extracting assets")
         
         except Exception as e:
-            logging.error(f"An Unexpected Error Occured: {e}")
+            self.logger.error(f"An Unexpected Error Occured: {e}")
             print(f"An Unexpected Error Occured: {e}")
             self.errorPopup(f"An Unexpected Error Occured: {e}")
             raise e

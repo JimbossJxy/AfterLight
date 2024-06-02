@@ -11,37 +11,21 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-import configparser
-import logging
-import util
-import pathlib
-import pickle
-import shutil
+
 from src import variables
-from util.misc import misc
+from src.util.misc import misc
 from pathlib import Path
 from tempfile import TemporaryDirectory, mkdtemp
-from logging.handlers import RotatingFileHandler
+from src.util.afterlightLogging import afterlightLogging
 
 class inventory:
     def __init__(self):
         # Boilerplate code
-
-        # Logging setup
-        self.handler = RotatingFileHandler(self.logPath + "/game.log", maxBytes=5242880, backupCount=5)
-        self.formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        self.handler.setFormatter(self.formatter)
-        self.logger = logging.getLogger()
-        self.logger.setLevel(logging.DEBUG)
-        self.logger.addHandler(self.handler)
-        self.logger.addHandler(logging.StreamHandler())
-        self.logger.info("Logging has been setup for the menu class.")
-
-        # Other boilerplate code
         self.misc = misc()
         self.warningPopup = self.misc.warningPopup
         self.errorPopup = self.misc.errorPopup
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
+        self.logger = afterlightLogging()
 
         # Other Objects - These are objects that are used by the class
 
@@ -67,16 +51,16 @@ class inventory:
                     # Check if we are in the hotbar category
                     if category == "hotbar":
                         if not _hotbarKeys.issubset(data.keys()):
-                            logging.warning(f"Missing keys in hotbar position {position}")
-                            logging.info("Inventory will be reset to default values")
+                            self.logger.warning(f"Missing keys in hotbar position {position}")
+                            self.logger.info("Inventory will be reset to default values")
                     else:
                         if not _requiredKeys.issubset(data.keys()):
-                            logging.warning(f"Missing keys in {category} position {position}")
-                            logging.info("Inventory will be reset to default values")
+                            self.logger.warning(f"Missing keys in {category} position {position}")
+                            self.logger.info("Inventory will be reset to default values")
         
         except AttributeError:
-            logging.error("Inventory is not a dictionary")
-            logging.info("Creating a new inventory")
+            self.logger.error("Inventory is not a dictionary")
+            self.logger.info("Creating a new inventory")
 
     # Listener for inventory changes - Will be used to update the inventory in the GUI
     def notifyInventory(self):
@@ -84,23 +68,23 @@ class inventory:
         Notifies the GUI of any inventory changes
         """
         if self.listener is None:
-            logging.error("No listener set")
-            logging.info("Inventory will not be updated in the GUI")
+            self.logger.error("No listener set")
+            self.logger.info("Inventory will not be updated in the GUI")
             return
         
         try:
             self.listener.refresh() # Refresh the GUI - Needs to be implemented in the GUI
-            logging.info("Inventory updated in the GUI")
+            self.logger.info("Inventory updated in the GUI")
         except TypeError as e:
-            logging.error(f"Error updating inventory in the GUI: {e}")
-            logging.info("Inventory will not be updated in the GUI")
+            self.logger.error(f"Error updating inventory in the GUI: {e}")
+            self.logger.info("Inventory will not be updated in the GUI")
 
     # Updates Existing Stack - Will be used for stacking items in the inventory
     def updateExistingStack(self, item, quantity):
         """
         Updates an existing stack of an item in the inventory
         """
-        logging.info(f"Updating existing stack of {item} with {quantity}")
+        self.logger.info(f"Updating existing stack of {item} with {quantity}")
         _itemData = self.itemList[item]
         _maxQuantity = _itemData['maxQuantity']
         _remainingQuantity = quantity
@@ -115,7 +99,7 @@ class inventory:
                         _addQuantity = min(_remainingQuantity, _availableSpace)
                         _data["quantity"] += _addQuantity
                         _remainingQuantity -= _addQuantity
-                        logging.info(f"Added {_addQuantity} '{item}' to {_category} {_position}, new quantity: {_data['quantity']}.")
+                        self.logger.info(f"Added {_addQuantity} '{item}' to {_category} {_position}, new quantity: {_data['quantity']}.")
                        # self.notify_listeners('update', item, _addQuantity)
         return _remainingQuantity
     
@@ -124,7 +108,7 @@ class inventory:
         """
         Adds a new stack of an item to the inventory
         """
-        logging.info(f"Adding new stack of {item} with {quantity}")
+        self.logger.info(f"Adding new stack of {item} with {quantity}")
         _itemData = self.itemList[item]
         _maxQuantity = _itemData['maxQuantity']
         _remainingQuantity = quantity
@@ -138,7 +122,7 @@ class inventory:
                     _data["item"] = item
                     _data["quantity"] = _addQuantity
                     _remainingQuantity -= _addQuantity
-                    logging.info(f"Added {_addQuantity} '{item}' to {_category} {_position}.")
+                    self.logger.info(f"Added {_addQuantity} '{item}' to {_category} {_position}.")
                    # self.notify_listeners('add', item, _addQuantity)
         return _remainingQuantity
     
@@ -153,30 +137,30 @@ class inventory:
         It will check through the whole inventory to find the item. If the item exists it will check if the quantity of that stack is less than the max quantity of the item, if it is it will add the quantity to the stack. If the item does not exist it will check for an empty slot in the inventory and add the item to that slot.
         It will check if there is a free slot from row 3 position 1 then row 3 position 2 etc to put the item in. If there are no free slots available return 3 for no free slots available.
         """
-        logging.info(f"Adding {quantity} '{item}' to the inventory.")
+        self.logger.info(f"Adding {quantity} '{item}' to the inventory.")
         if item not in self.itemList:
-            logging.error(f"Item '{item}' not found in items dictionary.")
+            self.logger.error(f"Item '{item}' not found in items dictionary.")
             return 1  # Item not found in items dictionary
 
         # Update existing stacks
         _remainingQuantity = self.updateExistingStack(item, quantity)
-        logging.info(f"Remaining quantity after updating existing stacks: {_remainingQuantity}")
+        self.logger.info(f"Remaining quantity after updating existing stacks: {_remainingQuantity}")
 
         # Add new stacks
         _remainingQuantity = self.addNewStack(item, _remainingQuantity)
-        logging.info(f"Remaining quantity after adding new stacks: {_remainingQuantity}")
+        self.logger.info(f"Remaining quantity after adding new stacks: {_remainingQuantity}")
         
         if _remainingQuantity > 0:
-            logging.info(f"No free slots available to add '{item}'.")
+            self.logger.info(f"No free slots available to add '{item}'.")
             return 3  # No free slots available
 
-        logging.info(f"Added '{item}' to the inventory successfully.")
+        self.logger.info(f"Added '{item}' to the inventory successfully.")
         # self.notify_listeners('add_item', item, quantity - remaining_quantity) - Needs to be implemented in the GUI
         return 0  # Success
         
     # Remove Stack - Will be used for dropping items/using items/trading items/etc
     def removeStack(self, category, position, item, quantity):
-        logging.info(f"Removing {quantity} '{item}' from the inventory.")   
+        self.logger.info(f"Removing {quantity} '{item}' from the inventory.")   
         _emptyItem = {
             "item": "empty",
             "description": "",
@@ -200,7 +184,7 @@ class inventory:
                 _data["quantity"] -= quantity
 
             return quantity
-        logging.info(f"Item '{item}' not found in the inventory.")
+        self.logger.info(f"Item '{item}' not found in the inventory.")
         return 1 # Error code for item not found in inventory 
     
     # Attempts to remove an item from the inventory - Will be used for dropping items/using items/trading items/etc
@@ -216,7 +200,7 @@ class inventory:
         and remove the stack that is equal to the quantity to be removed. If the total quantity is more than a single stack it will remove the quantity from each stack until the quantity to be removed is 0. This will be done by removing from row 3 position 1 then row 3 position 2 etc for that item.
 
         """
-        logging.info(f"Removing {quantity} '{item}' from the inventory.")
+        self.logger.info(f"Removing {quantity} '{item}' from the inventory.")
         _totalQuantity = 0
         _positionsUpdate = []
 
@@ -229,13 +213,13 @@ class inventory:
 
         # If the item doesn't exist in the inventory
         if _totalQuantity == 0:
-            logging.info(f"Item '{item}' not found in the inventory.")
+            self.logger.info(f"Item '{item}' not found in the inventory.")
             print(f"Item '{item}' not found in the inventory.")
             return 1  # Error code for item not found in inventory
 
         # If quantity to be removed is more than available
         if quantity > _totalQuantity:
-            logging.info(f"Cannot remove {quantity} '{item}' as only {_totalQuantity} available.")
+            self.logger.info(f"Cannot remove {quantity} '{item}' as only {_totalQuantity} available.")
             print(f"Cannot remove {quantity} '{item}' as only {_totalQuantity} available.")
             return 2, _totalQuantity  # Error code for insufficient quantity and return the total quantity available
 
@@ -246,7 +230,7 @@ class inventory:
             _quantityRemoved = self.removeStack(_category, position, item, quantity)
             quantity -= _quantityRemoved  # Update the quantity to be removed
 
-        logging.info(f"Removed {quantity} '{item}' from the inventory.")
+        self.logger.info(f"Removed {quantity} '{item}' from the inventory.")
         # self.notify_listeners('remove', item, quantity)
         return 0  # Success code for item removed
         
@@ -261,11 +245,11 @@ class inventory:
         
         Returns: True if the player has the item in the inventory, False if the player does not have the item in the inventory
         """
-        logging.info(f"Checking if player has {quantity} {item}")
+        self.logger.info(f"Checking if player has {quantity} {item}")
         for i in variables.inventory:
             if i["item"] == item:
                 if i["quantity"] >= quantity:
-                    logging.info(f"Player has {quantity} of {item}")
+                    self.logger.info(f"Player has {quantity} of {item}")
                     return True
         return False
 
@@ -275,14 +259,14 @@ class inventory:
         """
         Checks how many free slots are in the players inventory - Done by checking how many "empty" Items are in the inventory variable from variables.py
         """
-        logging.info("Checking how many free slots are in the inventory")
+        self.logger.info("Checking how many free slots are in the inventory")
         _freeSlots = 0
         for category, positions in variables.inventory.items():
             for position, data in positions.items():
                 if data["item"] == "empty":
                     _freeSlots += 1
 
-        logging.info(f"Player has {_freeSlots} free slots in their inventory")
+        self.logger.info(f"Player has {_freeSlots} free slots in their inventory")
         return _freeSlots
 
 
@@ -292,12 +276,12 @@ class inventory:
         """
         Checks if the players inventory is full - This is done by checking if the inventory variable from variables.py has no "empty" Items within it
         """
-        logging.info("Checking if inventory is full")
+        self.logger.info("Checking if inventory is full")
         for category, positions in variables.inventory.items():
             for position, data in positions.items():
                 if data["item"] == "empty":
-                    logging.info("Inventory is not full")
+                    self.logger.info("Inventory is not full")
                     return False
-        logging.info("Inventory is full")
+        self.logger.info("Inventory is full")
         return True
         

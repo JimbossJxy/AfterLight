@@ -12,33 +12,21 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 import configparser
-import logging
 import shutil
 from src.util.misc import misc
 from pathlib import Path
 from tempfile import TemporaryDirectory, mkdtemp
-from logging.handlers import RotatingFileHandler
 from xml.etree import ElementTree 
+from src.util.afterlightLogging import afterlightLogging
 
 class statistics:
     def __init__(self):
         # Boilerplate code
-
-        # Logging setup
-        self.handler = RotatingFileHandler(self.logPath + "/game.log", maxBytes=5242880, backupCount=5)
-        self.formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        self.handler.setFormatter(self.formatter)
-        self.logger = logging.getLogger()
-        self.logger.setLevel(logging.DEBUG)
-        self.logger.addHandler(self.handler)
-        self.logger.addHandler(logging.StreamHandler())
-        self.logger.info("Logging has been setup for the menu class.")
-
-        # Other boilerplate code
         self.misc = misc()
         self.warningPopup = self.misc.warningPopup
         self.errorPopup = self.misc.errorPopup
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
+        self.logger = afterlightLogging()
 
         # Other Objects - These are objects that are used by the class
 
@@ -118,12 +106,12 @@ class statistics:
 
         # Write to File
         _tree = ElementTree.ElementTree(_root)
-        logging.info("Writing Total Statistics File")
+        self.logger.info("Writing Total Statistics File")
         try:
             _tree.write(self.totalStatsPath)
-            logging.info("Total Statistics File Written Successfully")
+            self.logger.info("Total Statistics File Written Successfully")
         except Exception as e:
-            logging.error(f"Error Writing Total Statistics File: {e}")
+            self.logger.error(f"Error Writing Total Statistics File: {e}")
             self.errorPopup(f"Error Writing Total Statistics File: {e}")
             raise Exception(f"Error Writing Total Statistics File: {e}")
 
@@ -180,11 +168,11 @@ class statistics:
 
         if data is None:
             self.errorPopup("No Data to Update Total Statistics")
-            logging.error("No Data to Update Total Statistics")
+            self.logger.error("No Data to Update Total Statistics")
             raise Exception("No Data to Update Total Statistics")
         elif not isinstance(data, dict):
             self.errorPopup("Data is not a Dictionary")
-            logging.error("Data is not a Dictionary")
+            self.logger.error("Data is not a Dictionary")
             raise Exception("Data is not a Dictionary")
         
         # data is a dictionary
@@ -195,33 +183,33 @@ class statistics:
         for _statName in self.statList:
             if _statName not in data:
                 data[_statName] = 0
-                logging.info(f"{_statName} not in Data")
+                self.logger.info(f"{_statName} not in Data")
         
         for _key in self.keysPressed:
             if f"total{_key}Pressed" not in data:
                 data[f"total{_key}Pressed"] = 0
-                logging.info(f"Total {_key} Pressed not in Data")
+                self.logger.info(f"Total {_key} Pressed not in Data")
         
         if "totalHostilesKilled" not in data:
             data["totalHostilesKilled"] = 0
-            logging.info("Total Hostiles Killed not in Data")
+            self.logger.info("Total Hostiles Killed not in Data")
         
         if "totalNPCsKilled" not in data:
             data["totalNPCsKilled"] = 0
-            logging.info("Total NPCs Killed not in Data")
+            self.logger.info("Total NPCs Killed not in Data")
         
         if "totalFriendlyKilled" not in data:
             data["totalFriendlyKilled"] = 0
-            logging.info("Total Friendly Killed not in Data")
+            self.logger.info("Total Friendly Killed not in Data")
 
         
         if "totalDamageDealtToAnimals" not in data:
             data["totalDamageDealtToAnimals"] = 0
-            logging.info("Total Damage Dealt to Animals not in Data")
+            self.logger.info("Total Damage Dealt to Animals not in Data")
         
         if "totalKeysPressed" not in data:
             data["totalKeysPressed"] = 0
-            logging.info("Total Keys Pressed not in Data")
+            self.logger.info("Total Keys Pressed not in Data")
         
 
         try:
@@ -232,13 +220,13 @@ class statistics:
                 for _element in _root.iter():
                     if _element.tag == _key:
                         _element.text = str(int(_element.text) + int(data[_key]))
-                        logging.info(f"Updated {_key} in Total Statistics")
+                        self.logger.info(f"Updated {_key} in Total Statistics")
                 
             _tree.write(self.totalStatsPath)
-            logging.info("Total Statistics Updated Successfully")
+            self.logger.info("Total Statistics Updated Successfully")
         
         except Exception as e:
-            logging.error(f"Error Updating Total Statistics: {e}")
+            self.logger.error(f"Error Updating Total Statistics: {e}")
             self.errorPopup(f"Error Updating Total Statistics: {e}")
             raise Exception(f"Error Updating Total Statistics: {e}")
 
@@ -251,43 +239,43 @@ class statistics:
         # Checks if the data variable is None or not a dictionary
         if data is None:
             self.errorPopup("No Data to Update Total Statistics")
-            logging.error("No Data to Update Total Statistics")
+            self.logger.error("No Data to Update Total Statistics")
             raise Exception("No Data to Update Total Statistics")
         elif not isinstance(data, dict):
             self.errorPopup("Data is not a Dictionary")
-            logging.error("Data is not a Dictionary")
+            self.logger.error("Data is not a Dictionary")
             raise Exception("Data is not a Dictionary")
         
         for _statName in self.statList:
             if _statName not in data:
                 data[_statName] = 0
-                logging.info(f"{_statName} not in Data")
+                self.logger.info(f"{_statName} not in Data")
         
         for _key in self.keysPressed:
             if f"total{_key}Pressed" not in data:
                 data[f"total{_key}Pressed"] = 0
-                logging.info(f"Total {_key} Pressed not in Data")
+                self.logger.info(f"Total {_key} Pressed not in Data")
         
         if "totalHostilesKilled" not in data:
             data["totalHostilesKilled"] = 0
-            logging.info("Total Hostiles Killed not in Data")
+            self.logger.info("Total Hostiles Killed not in Data")
         
         if "totalNPCsKilled" not in data:
             data["totalNPCsKilled"] = 0
-            logging.info("Total NPCs Killed not in Data")
+            self.logger.info("Total NPCs Killed not in Data")
         
         if "totalFriendlyKilled" not in data:
             data["totalFriendlyKilled"] = 0
-            logging.info("Total Friendly Killed not in Data")
+            self.logger.info("Total Friendly Killed not in Data")
 
         
         if "totalDamageDealtToAnimals" not in data:
             data["totalDamageDealtToAnimals"] = 0
-            logging.info("Total Damage Dealt to Animals not in Data")
+            self.logger.info("Total Damage Dealt to Animals not in Data")
         
         if "totalKeysPressed" not in data:
             data["totalKeysPressed"] = 0
-            logging.info("Total Keys Pressed not in Data")
+            self.logger.info("Total Keys Pressed not in Data")
 
         try:
             # For each key in the data variable, add the value to the value of the key in the save statistics file.
@@ -297,13 +285,13 @@ class statistics:
                 for _element in _root.iter():
                     if _element.tag == _key:
                         _element.text = str(int(_element.text) + int(data[_key]))
-                        logging.info(f"Updated {_key} in Save Statistics")
+                        self.logger.info(f"Updated {_key} in Save Statistics")
                 
             _tree.write(_savePath)
-            logging.info("Save Statistics Updated Successfully")
+            self.logger.info("Save Statistics Updated Successfully")
         
         except Exception as e:
-            logging.error(f"Error Updating Save Statistics: {e}")
+            self.logger.error(f"Error Updating Save Statistics: {e}")
             self.errorPopup(f"Error Updating Save Statistics: {e}")
             raise Exception(f"Error Updating Save Statistics: {e}")
         
