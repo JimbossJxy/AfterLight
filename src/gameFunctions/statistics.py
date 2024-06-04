@@ -12,12 +12,13 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 import configparser
+import logging
 import shutil
 from src.util.misc import misc
 from pathlib import Path
 from tempfile import TemporaryDirectory, mkdtemp
 from xml.etree import ElementTree 
-from src.util.afterlightLogging import afterlightLogging
+
 
 class statistics:
     def __init__(self):
@@ -26,7 +27,7 @@ class statistics:
         self.warningPopup = self.misc.warningPopup
         self.errorPopup = self.misc.errorPopup
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
-        self.logger = afterlightLogging()
+        self.logger = logging.getLogger(__name__)
 
         # Other Objects - These are objects that are used by the class
 

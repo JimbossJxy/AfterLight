@@ -17,6 +17,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 import ctypes
+import logging
 import pathlib
 import subprocess
 import shutil
@@ -24,13 +25,13 @@ import winsound
 import zipfile
 from pathlib import Path
 from tempfile import TemporaryDirectory, mkdtemp
-from src.util.afterlightLogging import afterlightLogging
+
 
 class misc:
     def __init__(self):
         # Boilerplate code - Excluding misc class because it is the misc class
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
-        self.logger = afterlightLogging()
+        self.logger = logging.getLogger(__name__)
 
         # Other Objects - These are objects that are used by the class
 

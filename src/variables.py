@@ -8,6 +8,7 @@ Purpose of Document: This document will be used to store all global variables fo
 """
 import os
 import sys
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 loadGame = {}
@@ -16,7 +17,58 @@ saveGame = {
     "world": {},
     "player": {},
 }
-
+settings = {
+    "displaySettings": {
+        "resolution": (1920, 1080),
+        "fullscreen": False,
+        "aspectRatio": (16, 9),
+        "refreshRate": 60,
+        "vsync": False         
+    },
+    "graphicsSettings": {
+        "textureQuality": 1,
+        "shadows": True,
+        "lighting": 1,
+        "particles": True,
+        "postProcessing": True,
+        "antialiasing": True
+    },
+    "audioSettings": {
+        "masterVolume": 1.0,
+        "musicVolume": 1.0,
+        "hostileVolume": 1.0,
+        "friendlyVolume": 1.0,
+        "interactionVolume": 1.0,
+        "environmentVolume": 1.0,
+        "ambientVolume": 1.0
+    },
+    "keybinds": {
+        "moveUp": "w",
+        "moveDown": "s",
+        "moveLeft": "a",
+        "moveRight": "d",
+        "jump": "SPACE",
+        "inventory": "e",
+        "pause": "ESCAPE",
+        "sprint": "LSHIFT",
+        "crouch": "LCRTL",
+    },
+    "mouseSettings": {
+        "sensitivity": 1,
+        "inverted": False,
+        "attack": "LEFT",
+        "interact": "RIGHT",
+    },
+    "accessibilitySettings": {
+        "colourBlindMode": False,
+        "colourBlindType": "protanopia",
+        "motionSicknessMode": False,
+        "subtitles": False,
+        "hud": True,
+        "hints": True,
+        "tutorial": True,
+    }
+}
 # Default inventory layout - This will be used to create the inventory for the player or if the player has a corrupted inventory will be used to reset the inventory.
 inventory = {
     "hotbar": {

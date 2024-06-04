@@ -14,12 +14,14 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
+
 import configparser
+import logging
 import pickle
 from datetime import datetime
 from pathlib import Path
 from src.util.misc import misc
-from src.util.afterlightLogging import afterlightLogging
+
 
 
 
@@ -30,7 +32,7 @@ class saveLoadGame:
         self.warningPopup = self.misc.warningPopup
         self.errorPopupup = self.misc.errorPopupup
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
-        self.logger = afterlightLogging()
+        self.logger = logging.getLogger(__name__)
 
         # Other Objects - These are objects that are used by the class
 

@@ -11,6 +11,7 @@ Referenced Code:
 """
 
 import configparser
+import logging
 import os
 import pathlib
 import pickle
@@ -20,7 +21,6 @@ import zipfile
 from datetime import datetime
 from pathlib import Path
 from src.util.misc import misc
-from src.util.afterlightLogging import afterlightLogging
 
 class passiveAI:
     def __init__(self):
@@ -29,6 +29,6 @@ class passiveAI:
         self.warningPopup = self.misc.warningPopup
         self.errorPopup = self.misc.errorPopup
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
-        self.logger = afterlightLogging()
+        self.logger = logging.getLogger(__name__)
 
         # Other Objects - These are objects that are used by the class

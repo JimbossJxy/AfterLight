@@ -9,11 +9,21 @@ Referenced Code:
 
 """
 
+
+import src.util.initialise as initialise
 from src.util.misc import misc
+
 from src.gameFunctions import world
 
-from src.gameFunctions import statistics
 
-statistics = statistics.statistics()
 
-statistics.generateTotalStatistics()
+
+
+
+def main():
+    initialise.run()
+    
+    
+
+if __name__ == "__main__":
+    main()

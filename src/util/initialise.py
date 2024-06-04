@@ -14,19 +14,24 @@ Referenced Code:
     Need to change to it checks if the required packages are installed and if not installs them
 """
 import os
+import src
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 import configparser
+import logging
 import pathlib
 import subprocess
 import shutil
 import webbrowser
 import zipfile
-from misc import misc
 from pathlib import Path
 from tempfile import TemporaryDirectory, mkdtemp
+
+from src.variables import settings
+from src.util.misc import misc
 from src.util.afterlightLogging import afterlightLogging
+
 
 
 class initalise:
@@ -46,60 +51,10 @@ class initalise:
 
             self.warningPopup = misc().warningPopup
             self.errorPopup = misc().errorPopup
-            self.logger = afterlightLogging()
+            self.logger = logging.getLogger(__name__)
             
-            self.defaultSettings = {
-                  "displaySettings": {
-                        "resolution": (1920, 1080),
-                        "fullscreen": False,
-                        "aspectRatio": (16, 9),
-                        "vsync": False         
-                    },
-                    "graphicsSettings": {
-                        "textureQuality": 1,
-                        "shadows": True,
-                        "lighting": True,
-                        "particles": True,
-                        "postProcessing": True,
-                        "antialiasing": True
-                    },
-                    "audioSettings": {
-                        "masterVolume": 1,
-                        "musicVolume": 1,
-                        "sfxVolume": 1
-                    },
-                    "keybinds": {
-                        "moveUp": "w",
-                        "moveDown": "s",
-                        "moveLeft": "a",
-                        "moveRight": "d",
-                        "jump": "SPACE",
-                        "inventory": "e",
-                        "pause": "ESCAPE",
-                        "sprint": "LSHIFT",
-                        "crouch": "LCRTL",
-                    },
-                    "mouseSettings": {
-                        "sensitivity": 1,
-                        "inverted": False,
-                        "attack": "LEFT",
-                        "interact": "RIGHT",
-                    },
-                    "accessibilitySettings": {
-                        "colourBlindMode": False,
-                        "colourBlindType": 0,
-                        "motionSicknessMode": False,
-                        "subtitles": False,
-                        "hud": True,
-                        "crosshair": True,
-                        "hints": True,
-                        "tutorial": True,
-                    },
-                    "logSettings": {
-                          "fileSize": 3145728,
-                          "maxFiles": 10,
-                    }
-            }
+            self.defaultSettings = settings
+
 
     
     def checkPaths(self):
@@ -183,7 +138,7 @@ class initalise:
                 print("Wrote default settings to settings file")
 
     # Function to check if the required packages are installed and if not installs them
-    def check_and_install_packages(self):
+    def checkAndInstallPackages(self):
         """
         Checks if the required packages are installed and if not installs them
         """
@@ -203,7 +158,7 @@ class initalise:
 
 
     
-    def download_and_extract_assets(self):
+    def downloadAndExtractAssets(self):
         import requests
         """
         Downloads the assets from the github repository and extracts them to the assets folder
@@ -283,8 +238,8 @@ class initalise:
             self.logger.info("Assets have been downloaded and extracted")
             print("Assets have been downloaded and extracted")
 
-            # Remove the temp folder for cleanup
-            os.remove(tempDir)    
+            # Remove the zip file in temp folder.
+            os.remove(_zipPath)
         
         # Error handling
         except requests.exceptions.RequestException as e:
@@ -305,6 +260,15 @@ class initalise:
             self.errorPopup(f"An Unexpected Error Occured: {e}")
             raise e
 
-    
-initalise().check_and_install_packages()
+def run():
+    """
+    Runs the initialisation code
+    """
+    initialise = initalise()
+    initialise.checkPaths()
+    afterlightLogging()
+    initialise.checkSettings()
+    initialise.checkAndInstallPackages()
+    initialise.downloadAndExtractAssets()
+
 

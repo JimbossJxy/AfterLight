@@ -11,12 +11,12 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-
+import logging
 from src import variables
 from src.util.misc import misc
 from pathlib import Path
 from tempfile import TemporaryDirectory, mkdtemp
-from src.util.afterlightLogging import afterlightLogging
+
 
 class inventory:
     def __init__(self):
@@ -25,7 +25,7 @@ class inventory:
         self.warningPopup = self.misc.warningPopup
         self.errorPopup = self.misc.errorPopup
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
-        self.logger = afterlightLogging()
+        self.logger = logging.getLogger(__name__)
 
         # Other Objects - These are objects that are used by the class
 
