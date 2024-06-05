@@ -14,8 +14,31 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 loadGame = {}
 saveGame = {
     "inventory": {},
-    "world": {},
-    "player": {},
+    "world": {
+        "worldName": "default",
+        "worldSeed": 0,
+        "worldSize": 0,
+        "worldType": "default",
+        "worldDifficulty": 1,
+        "worldTime": 0,
+        "worldWeather": "clear",
+    },
+    "player": {
+        "position": (0, 0),
+        "health": 100,
+        "hunger": 100,
+        "thirst": 100,
+        "stamina": 100,
+        "oxygen": 100,
+        "temperature": 37,
+        "weight": 0,
+        "speed": 1.0,
+        "jumpHeight": 1.0,
+        "attack": 1.0,
+        "defence": 1.0,
+        "experience": 0,
+        "difficulty": 1
+    },
 }
 settings = {
     "displaySettings": {

@@ -86,7 +86,7 @@ class search:
         self.warningPopup = self.misc.warningPopup
         self.errorPopupup = self.misc.errorPopup
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
-        self.logger = afterlightLogging()
+        self.logger = logging.getLogger(__name__)
 
         # Other Objects - These are objects that are used by the class
         self.savePath = str(Path.home() / "Documents" / "Afterlight" / "Saves")
@@ -155,7 +155,7 @@ class delete:
         self.warningPopup = self.misc.warningPopup
         self.errorPopup = self.misc.errorPopup
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
-        self.logger = afterlightLogging()
+        self.logger = logging.getLogger(__name__)
 
         # Other Objects - These are objects that are used by the class
         self.savePath = str(Path.home() / "Documents" / "Afterlight" / "Saves")

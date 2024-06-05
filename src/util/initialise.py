@@ -159,6 +159,49 @@ class initalise:
 
     
     def downloadAndExtractAssets(self):
+        # A list of all the paths to all the assets used. It will first check if all the assets are downloaded and if not download them
+        # It also means that the gaame can run if the assets have been downloaded externally
+        _assetsDict = {
+            "audio": {
+                "mainPath": os.path.join(self.assetPath, "audio"),
+            },
+            "buildings": {
+                "mainPath": os.path.join(self.assetPath, "buildings"),
+            },
+            "hostileCreatures": {
+                "mainPath": os.path.join(self.assetPath, "hostileCreatures"),
+            },
+            "items": {
+                "mainPath": os.path.join(self.assetPath, "items"),
+            },
+            "player": {
+                "mainPath": os.path.join(self.assetPath, "player"),
+            },
+            "menus": {
+                "mainPath": os.path.join(self.assetPath, "menus"),
+                "mainMenu": {
+                    "mainPath": os.path.join(self.assetPath, "menus", "mainMenu"),
+                },
+
+            },
+            "npcs": {
+                "mainPath": os.path.join(self.assetPath, "npcs"),
+            },
+            "passiveCreatures": {
+                "mainPath": os.path.join(self.assetPath, "passiveCreatures"),
+            },
+            "misc": {
+                "mainPath": os.path.join(self.assetPath, "misc"),
+            },
+        }
+
+        # Check if all the assets exist in the assets folder
+        assetsExist = True
+        for asset in _assetsDict:
+            if not os.path.exists(_assetsDict[asset]["mainPath"]):
+                assetsExist = False
+                break
+            
         import requests
         """
         Downloads the assets from the github repository and extracts them to the assets folder
