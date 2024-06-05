@@ -25,6 +25,7 @@ import subprocess
 import shutil
 import webbrowser
 import zipfile
+import urllib.request
 from pathlib import Path
 from tempfile import TemporaryDirectory, mkdtemp
 
@@ -54,6 +55,41 @@ class initalise:
             self.logger = logging.getLogger(__name__)
             
             self.defaultSettings = settings
+
+            self.githubAssets = "https://github.com/JimbossJxy/afterlightAssets/archive/refs/heads/main.zip"
+            self.assetDict = {
+                "audio": {
+                    "mainPath": os.path.join(self.assetPath, "audio"),
+                },
+                "buildings": {
+                    "mainPath": os.path.join(self.assetPath, "buildings"),
+                },
+                "hostileCreatures": {
+                    "mainPath": os.path.join(self.assetPath, "hostileCreatures"),
+                },
+                "items": {
+                    "mainPath": os.path.join(self.assetPath, "items"),
+                },
+                "player": {
+                    "mainPath": os.path.join(self.assetPath, "player"),
+                },
+                "menus": {
+                    "mainPath": os.path.join(self.assetPath, "menus"),
+                    "mainMenu": {
+                        "mainPath": os.path.join(self.assetPath, "menus", "mainMenu"),
+                    },
+
+                },
+                "npcs": {
+                    "mainPath": os.path.join(self.assetPath, "npcs"),
+                },
+                "passiveCreatures": {
+                    "mainPath": os.path.join(self.assetPath, "passiveCreatures"),
+                },
+                "misc": {
+                    "mainPath": os.path.join(self.assetPath, "misc"),
+                },
+            }
 
 
     
@@ -142,7 +178,7 @@ class initalise:
         """
         Checks if the required packages are installed and if not installs them
         """
-        required_packages = ['pygame', 'requests', "perlin-noise"]
+        required_packages = ['pygame', "perlin-noise"]
         
         for package in required_packages:
             try:
@@ -156,152 +192,111 @@ class initalise:
                 print(f"{package} has been installed.")
                 self.logger.info(f"{package} has been installed.")
 
+    # Asset management
 
+    def checkAndUpdateAssets(self):
+        """
+        Checks if the assets are up to date and if not updates them
+        """
+        if not self.assetsExist(assetDict=self.assetDict):
+            self.downloadAndReplaceAssets()
     
-    def downloadAndExtractAssets(self):
-        # A list of all the paths to all the assets used. It will first check if all the assets are downloaded and if not download them
-        # It also means that the gaame can run if the assets have been downloaded externally
-        _assetsDict = {
-            "audio": {
-                "mainPath": os.path.join(self.assetPath, "audio"),
-            },
-            "buildings": {
-                "mainPath": os.path.join(self.assetPath, "buildings"),
-            },
-            "hostileCreatures": {
-                "mainPath": os.path.join(self.assetPath, "hostileCreatures"),
-            },
-            "items": {
-                "mainPath": os.path.join(self.assetPath, "items"),
-            },
-            "player": {
-                "mainPath": os.path.join(self.assetPath, "player"),
-            },
-            "menus": {
-                "mainPath": os.path.join(self.assetPath, "menus"),
-                "mainMenu": {
-                    "mainPath": os.path.join(self.assetPath, "menus", "mainMenu"),
-                },
-
-            },
-            "npcs": {
-                "mainPath": os.path.join(self.assetPath, "npcs"),
-            },
-            "passiveCreatures": {
-                "mainPath": os.path.join(self.assetPath, "passiveCreatures"),
-            },
-            "misc": {
-                "mainPath": os.path.join(self.assetPath, "misc"),
-            },
-        }
-
-        # Check if all the assets exist in the assets folder
-        assetsExist = True
-        for asset in _assetsDict:
-            if not os.path.exists(_assetsDict[asset]["mainPath"]):
-                assetsExist = False
-                break
+    def assetsExist(self, assetDict):
+        """
+        Checks if the assets exist
+        """
+        self.logger.info("Checking if assets exist")
+        for key, value in assetDict.items():
+            if isinstance(value, dict):
+                
+                if 'mainPath' in value:
+                    self.logger.info(f"Checking if {key} exists")
+                    if not os.path.exists(value['mainPath']):
+                        self.logger.info(f"{key} does not exist")
+                        return False
+                
+                if not self.assetsExist(value):
+                    self.logger.info(f"{key} does not exist")
+                    return False
+                
+                self.logger.info(f"{key} exists")
             
-        import requests
+            else:
+                if not os.path.exists(value):
+                    self.logger.info(f"{key} does not exist")
+                    return False
+                
+                self.logger.info(f"{key} exists")
+
+        self.logger.info("All assets exist")
+        return True
+    
+
+    def downloadAndReplaceAssets(self):
         """
-        Downloads the assets from the github repository and extracts them to the assets folder
+        Downloads and replaces the assets
         """
-        _zipUrl = "https://github.com/JimbossJxy/afterlightAssets/archive/refs/heads/main.zip"
+        tempDir = mkdtemp()
+        self.logger.info(f"Created temp folder: {tempDir}")
+        print(f"Created temp folder: {tempDir}")
+
+        self.logger.info("Downloading assets from github")
+
+        # Download the zip file from the github repository
         try:
-            # Download the zip file from the github repository
-            self.logger.info("Downloading assets from github")
-            _getZip = requests.get(_zipUrl)
-            _getZip.raise_for_status()
-            
-            # Verify that the content type is a zip file
-            if _getZip.headers['Content-Type'] != 'application/zip':
-                self.logger.error("Error downloading assets: Content type is not a zip file")
-                print("Error downloading assets: Content type is not a zip file")
-                raise ValueError("Content type is not a zip file")
-
-            # Extract the zip file to the temp folder
-            tempDir = mkdtemp()
-            self.logger.info(f"Created temp folder: {tempDir}")
-            print(f"Created temp folder: {tempDir}")
-
-            
-            _zipPath = os.path.join(tempDir, "gameFiles.zip")
-            with open(_zipPath, 'wb') as _zipFile:
-                _zipFile.write(_getZip.content)
-                self.logger.info(f"Extracting assets to the temp folder: {_zipPath}")
-                print(f"Extracting assets to the temp folder: {_zipPath}")
-
-            # Extract the zip file to temparory folder
-            with zipfile.ZipFile(_zipPath, 'r') as _zip:
-                tempExtractPath = os.path.join(tempDir, "extracted")
-                self.logger.info(f"Temp path: {tempExtractPath}")
-                _zip.extractall(tempExtractPath)
-                self.logger.info(f"Extracted assets to {tempExtractPath}")
-                print(f"Extracted assets to {tempExtractPath}")
-                
-                # Check if all assests exist in assets folder
-                
-                assetsExist = True
-                for root, _, files in os.walk(tempExtractPath):
-                    for name in files:
-                        relativePath = os.path.relpath(os.path.join(root, name), tempExtractPath)
-                        if not os.path.exists(os.path.join(self.assetPath,relativePath)):
-                            assetsExist = False
-                            break
-                    if not assetsExist:
-                        break
-                
-
-                # If assets do not exist, clear assets folder and copy them to the assets folder
-                if not assetsExist:
-                    self.logger.info(f"Missing assets detected, clearing assets folder: {self.assetPath}")
-                    print(f"Missing assets detected, clearing assets folder: {self.assetPath}")
-                    if os.path.exists(self.assetPath):
-                        shutil.rmtree(self.assetPath)
-                        self.logger.info(f"Deleted assets folder: {self.assetPath}")
-                        print(f"Deleted assets folder: {self.assetPath}")
-
-                    os.makedirs(self.assetPath)
-                    self.logger.info(f"Created assets folder: {self.assetPath}")
-                    print(f"Created assets folder: {self.assetPath}")
-                    self.logger.info(f"Copying assets to assets folder: {self.assetPath}")
-
-                    for root, directories, files in os.walk(tempExtractPath):
-                        for _ in directories:
-                            destinationFolderPath = os.path.join(self.assetPath, os.path.relpath(root, tempExtractPath))
-                            os.makedirs(destinationFolderPath, exist_ok=True)
-                            self.logger.info(f"Created directory: {destinationFolderPath}")
-                            print(f"Created directory: {destinationFolderPath}")
-                        for fileName in files:
-                            relativePath = os.path.relpath(os.path.join(root, fileName), tempExtractPath)
-                            destinationFilePath = os.path.join(self.assetPath, relativePath)
-                            os.makedirs(os.path.dirname(destinationFilePath), exist_ok=True)
-                            shutil.copy2(os.path.join(root, fileName), destinationFilePath)
-                    
-            self.logger.info("Assets have been downloaded and extracted")
-            print("Assets have been downloaded and extracted")
-
-            # Remove the zip file in temp folder.
-            os.remove(_zipPath)
+            urllib.request.urlretrieve(self.githubAssets, os.path.join(tempDir, "gameFiles.zip"))
+            self.logger.info("Downloaded assets from github")
         
-        # Error handling
-        except requests.exceptions.RequestException as e:
+        except Exception as e:
             self.logger.error(f"Error downloading assets: {e}")
-            print(f"Error downloading assets: {e}")
-            self.errorPopup(f"Error downloading assets{e}")
+            self.errorPopup(f"Error downloading assets: {e}")
             raise ValueError("Error downloading assets")
         
-        except zipfile.BadZipFile as e:
+        # Extract the zip file to the temp folder
+        try:
+            with zipfile.ZipFile(os.path.join(tempDir, "gameFiles.zip"), 'r') as _zip:
+                tempExtractPath = os.path.join(tempDir, "extracted")
+                _zip.extractall(tempExtractPath)
+                self.logger.info(f"Extracted assets to {tempExtractPath}")
+        
+        except Exception as e:
             self.logger.error(f"Error extracting assets: {e}")
-            print(f"Error extracting assets: {e}")
             self.errorPopup(f"Error extracting assets: {e}")
             raise ValueError("Error extracting assets")
         
-        except Exception as e:
-            self.logger.error(f"An Unexpected Error Occured: {e}")
-            print(f"An Unexpected Error Occured: {e}")
-            self.errorPopup(f"An Unexpected Error Occured: {e}")
-            raise e
+        # clear current assets folder
+        self.logger.info(f"Clearing assets folder: {self.assetPath}")
+        if os.path.exists(self.assetPath):
+            shutil.rmtree(self.assetPath)
+            self.logger.info(f"Deleted assets folder: {self.assetPath}")
+        
+        # Copy the extracted assets to the assets folder
+        os.makedirs(self.assetPath)
+        self.logger.info(f"Created assets folder: {self.assetPath}")
+
+        # Move the extracted assets to the assets folder
+        extractedDir = os.path.join(tempExtractPath, os.listdir(tempExtractPath)[0])
+        for item in os.listdir(extractedDir):
+            ertI = os.path.join(extractedDir, item)
+
+            asI = os.path.join(self.assetPath, item)
+            
+            if os.path.isdir(ertI):
+                shutil.copytree(ertI, asI, False, None)
+                self.logger.info(f"Created directory: {asI}")
+
+            else:
+                shutil.copy2(ertI, asI)
+                self.logger.info(f"Copied file: {asI}")
+        
+        self.logger.info("Assets have been downloaded and extracted")
+        
+        # clear temp folder
+        shutil.rmtree(tempDir)
+        self.logger.info(f"Deleted temp folder: {tempDir}")
+            
+
+   
 
 def run():
     """
@@ -312,6 +307,6 @@ def run():
     afterlightLogging()
     initialise.checkSettings()
     initialise.checkAndInstallPackages()
-    initialise.downloadAndExtractAssets()
+    initialise.checkAndUpdateAssets()
 
 
