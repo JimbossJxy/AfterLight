@@ -21,6 +21,8 @@ from src.util.misc import misc
 
 def startup():
     logger = logging.getLogger(__name__)
+    pygame.init()
+    logger.info("Pygame has been initialized")
 
     # Check resolution from settings dictionary in variables.py
     resulution = settings["displaySettings"]["resolution"]

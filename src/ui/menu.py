@@ -32,15 +32,18 @@ class menu:
         self.warningPopup = self.misc.warningPopup
         self.errorPopup = self.misc.errorPopup
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
-        self.assestsPath = str(Path.home() / "Documents" / "Afterlight" / "Assets" / "afterlightAssets-main")
-        self.menuPath = str(Path.home() / "Documents" / "Afterlight" / "Assets" / "afterlightAssets-main" / "Menus")
+        self.assestsPath = str(Path.home() / "Documents" / "Afterlight" / "Assets")
+        self.menuPath = str(Path.home() / "Documents" / "Afterlight" / "Assets" / "Menus")
+        self.fontPath = str(Path.home() / "Documents" / "Afterlight" / "Assets" / "Menus"/ "Fonts")
         self.logger = logging.getLogger(__name__)
 
         # Other Objects - These are objects that are used by the class
 
         # menu specific objects
-
+        self.mousePos = pygame.mouse.get_pos()
         self.menuItems = ["Resume Game", "New Game", "Load Game", "Statistics", "Settings", "Exit Game"]
+
+
 
     def loadingScreen(self, screen):
         """
@@ -59,20 +62,18 @@ class menu:
         while True:
             screen.blit(_background, (0, 0))
             pygame.display.update()
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        pygame.quit()
-                        sys.exit()
-                    if event.key == pygame.K_RETURN:
-                        pass
-                    if event.key == pygame.K_DOWN:
-                        pass
-                    if event.key == pygame.K_UP:
-                        pass  
+            mousePos = self.mousePos
+
+            screenWidth, screenHeight = screen.get_size()
+            fontSize = int(100 * (screenWidth / 1920))
+            menuText = pygame.font.Font(self.fontPath / "menuFont.ttf", fontSize).render("Afterlight", True, (255, 255, 255))
+
+            menuTextRect = menuText.get_rect(centre=(screen.get_width() / 2, 100))
+
+            
+
+
+
     
     
     def newGameMenu(self, screen):
