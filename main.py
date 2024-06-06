@@ -9,7 +9,9 @@ Referenced Code:
 
 """
 
+from src.ui import menu
 
+import src.util.gamerunner 
 import src.util.initialise as initialise
 from src.util.misc import misc
 
@@ -22,6 +24,8 @@ from src.gameFunctions import world
 
 def main():
     initialise.run()
+    screen = src.util.gamerunner.startup()
+    menu.menu().mainMenu(screen=screen)
     
     
 
