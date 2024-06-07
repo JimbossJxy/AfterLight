@@ -48,4 +48,10 @@ class misc:
         _MessageboxIconError = 0x10
         ctypes.windll.user32.MessageBoxW(0, message, "Error", _MessageboxOK | _MessageboxIconError)
         self.logger.error("Displayed error popup successfully.")
+    
+    def yesNoPopup(self, title, message):
+        # Constants for the YesNo MessageBox
+        _MessageboxYesNo = 0x4
+        _MessageboxIconQuestion = 0x20
+        return ctypes.windll.user32.MessageBoxW(0, message, title, _MessageboxYesNo | _MessageboxIconQuestion)
 

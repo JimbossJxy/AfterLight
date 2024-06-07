@@ -178,7 +178,7 @@ class initalise:
         """
         Checks if the required packages are installed and if not installs them
         """
-        required_packages = ['pygame', "perlin-noise"]
+        required_packages = ['pygame', "perlin-noise", "numpy", "h5py"]
         
         for package in required_packages:
             try:
