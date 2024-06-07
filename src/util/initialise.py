@@ -122,13 +122,13 @@ class initalise:
         if not os.path.exists(self.settingsFile):
             
             config = configparser.ConfigParser()
-            config['DisplaySettings'] = {
-                'resolution': self.defaultSettings["displaySettings"]["resolution"],
-                'fullscreen': self.defaultSettings["displaySettings"]["fullscreen"],
-                'aspectRatio': self.defaultSettings["displaySettings"]["aspectRatio"],
-                'vsync': self.defaultSettings["displaySettings"]["vsync"]
+            config['displaySettings'] = {
+            'resolution': self.defaultSettings["displaySettings"]["resolution"],
+            'fullscreen': self.defaultSettings["displaySettings"]["fullscreen"],
+            'aspectRatio': self.defaultSettings["displaySettings"]["aspectRatio"],
+            'vsync': self.defaultSettings["displaySettings"]["vsync"]
             }
-            config['GraphicsSettings'] = {
+            config['graphicsSettings'] = {
                 'textureQuality': self.defaultSettings["graphicsSettings"]["textureQuality"],
                 'shadows': self.defaultSettings["graphicsSettings"]["shadows"],
                 'lighting': self.defaultSettings["graphicsSettings"]["lighting"],
@@ -136,12 +136,16 @@ class initalise:
                 'postProcessing': self.defaultSettings["graphicsSettings"]["postProcessing"],
                 'antialiasing': self.defaultSettings["graphicsSettings"]["antialiasing"]
             }
-            config['AudioSettings'] = {
+            config['audioSettings'] = {
                 'masterVolume': self.defaultSettings["audioSettings"]["masterVolume"],
                 'musicVolume': self.defaultSettings["audioSettings"]["musicVolume"],
-                'sfxVolume': self.defaultSettings["audioSettings"]["sfxVolume"]
+                'hostileVolume': self.defaultSettings["audioSettings"]["hostileVolume"],
+                'friendlyVolume': self.defaultSettings["audioSettings"]["friendlyVolume"],
+                'interactionVolume': self.defaultSettings["audioSettings"]["interactionVolume"],
+                'environmentVolume': self.defaultSettings["audioSettings"]["environmentVolume"],
+                'ambientVolume': self.defaultSettings["audioSettings"]["ambientVolume"]
             }
-            config['Keybinds'] = {
+            config['keybinds'] = {
                 'moveUp': self.defaultSettings["keybinds"]["moveUp"],
                 'moveDown': self.defaultSettings["keybinds"]["moveDown"],
                 'moveLeft': self.defaultSettings["keybinds"]["moveLeft"],
@@ -152,26 +156,27 @@ class initalise:
                 'sprint': self.defaultSettings["keybinds"]["sprint"],
                 'crouch': self.defaultSettings["keybinds"]["crouch"]
             }
-            config['MouseSettings'] = {
+            config['mouseSettings'] = {
                 'sensitivity': self.defaultSettings["mouseSettings"]["sensitivity"],
                 'inverted': self.defaultSettings["mouseSettings"]["inverted"],
                 'attack': self.defaultSettings["mouseSettings"]["attack"],
                 'interact': self.defaultSettings["mouseSettings"]["interact"]
             }
-            config['AccessibilitySettings'] = {
+            config['accessibilitySettings'] = {
                 'colourBlindMode': self.defaultSettings["accessibilitySettings"]["colourBlindMode"],
                 'colourBlindType': self.defaultSettings["accessibilitySettings"]["colourBlindType"],
                 'motionSicknessMode': self.defaultSettings["accessibilitySettings"]["motionSicknessMode"],
                 'subtitles': self.defaultSettings["accessibilitySettings"]["subtitles"],
                 'hud': self.defaultSettings["accessibilitySettings"]["hud"],
-                'crosshair': self.defaultSettings["accessibilitySettings"]["crosshair"],
                 'hints': self.defaultSettings["accessibilitySettings"]["hints"],
                 'tutorial': self.defaultSettings["accessibilitySettings"]["tutorial"]
             }
             with open(self.settingsFile, 'w') as configfile:
                 config.write(configfile)
                 self.logger.info("Wrote default settings to settings file")
-                print("Wrote default settings to settings file")
+        else:
+            self.logger.info("Settings file exists")
+            
 
     # Function to check if the required packages are installed and if not installs them
     def checkAndInstallPackages(self):
@@ -184,12 +189,22 @@ class initalise:
             try:
                 __import__(package)
                 self.logger.info(f"{package} is installed")
-                print(f"{package} is installed")
+
             except ImportError: 
-                print(f"{package} is not installed. Installing...")
+                if package == "perlin-noise":
+                    try:
+                        __import__("perlin_noise")
+                        self.logger.info(f"{package} is installed")
+                    except ImportError:
+                        self.logger.info(f"{package} is not installed. Installing...")
+                        subprocess.check_call(['pip', 'install', "perlin-noise"])
+                        self.logger.info(f"{package} has been installed.")
+                        __import__("perlin_noise")
+                        self.logger.info(f"{package} is imported")
+             
                 self.logger.info(f"{package} is not installed. Installing...")
                 subprocess.check_call(['pip', 'install', package])
-                print(f"{package} has been installed.")
+           
                 self.logger.info(f"{package} has been installed.")
 
     # Asset management

@@ -29,7 +29,7 @@ from datetime import datetime
 from pathlib import Path
 from src.util.misc import misc
 from perlin_noise import PerlinNoise
-from src.gameFunctions.world import Block
+
 
 # Constants
 class biome:

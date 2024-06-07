@@ -34,13 +34,14 @@ class menu:
         self.errorPopup = self.misc.errorPopup
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
         self.assestsPath = str(Path.home() / "Documents" / "Afterlight" / "Assets")
-        self.menuPath = str(Path.home() / "Documents" / "Afterlight" / "Assets" / "Menus")
-        self.fontPath = str(Path.home() / "Documents" / "Afterlight" / "Assets" / "Menus"/ "Fonts")
+        
         self.logger = logging.getLogger(__name__)
 
         # Other Objects - These are objects that are used by the class
 
         # menu specific objects
+        self.menuPath = str(Path.home() / "Documents" / "Afterlight" / "Assets" / "Menus")
+        self.fontPath = str(Path.home() / "Documents" / "Afterlight" / "Assets" / "Menus"/ "Fonts")
         self.mousePos = pygame.mouse.get_pos()
         self.menuItems = ["Resume Game", "New Game", "Load Game", "Statistics", "Settings", "Exit Game"]
 
@@ -141,4 +142,16 @@ class menu:
         This function will render the popup menu of the game. It will overlay the in game screen.
         """
         pass
+
+
+class inGameRenderEngine:
+    def __init__(self):
+        self.misc = misc()
+        self.warningPopup = self.misc.warningPopup
+        self.errorPopup = self.misc.errorPopup
+        self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
+        self.assestsPath = str(Path.home() / "Documents" / "Afterlight" / "Assets")
+        
+        self.logger = logging.getLogger(__name__)
+    
     

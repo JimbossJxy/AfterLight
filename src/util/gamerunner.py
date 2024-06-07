@@ -16,8 +16,8 @@ import pygame
 import pathlib
 import subprocess
 from pathlib import Path
-from src.variables import settings
 from src.util.misc import misc
+from src.util.settings import Settings
 
 def startup():
     logger = logging.getLogger(__name__)
@@ -25,12 +25,13 @@ def startup():
     logger.info("Pygame has been initialized")
 
     # Check resolution from settings dictionary in variables.py
-    resulution = settings["displaySettings"]["resolution"]
+    resulution = Settings().getSetting("displaySettings.resolution")
     logger.info(f"Resolution: {resulution}")
 
     # Check if the game is in fullscreen mode
-    fullscreen = settings["displaySettings"]["fullscreen"]
+    fullscreen = Settings().getSetting("displaySettings.fullscreen")
     logger.info(f"Fullscreen: {fullscreen}")
+
 
     if fullscreen:
         screen = pygame.display.set_mode(resulution, pygame.FULLSCREEN)
@@ -41,10 +42,14 @@ def startup():
         logger.info("Game is not in fullscreen mode")
         logger.info("Game resolution is set to: " + str(resulution))
     
+    clock = pygame.time.Clock()
+    logger.info("Clock has been created")
+
+
     # Set the title of the window
     pygame.display.set_caption("Afterlight")
     logger.info("Game title is set to: Afterlight")
     
-    return screen
+    return screen, clock
     
 

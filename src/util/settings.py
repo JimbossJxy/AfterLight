@@ -25,6 +25,7 @@ class Settings:
     def __init__(self, *args, **kwargs):
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
         self.settingsPath = str(Path.home() / "Documents" / "Afterlight" / "Settings")
+        self.settingsConfig = str(Path.home() / "Documents" / "Afterlight" / "Settings" / "settings.ini")
         self.config = configparser.ConfigParser()
         self.logger = logging.getLogger(__name__)
         self.settings = settings
@@ -32,7 +33,10 @@ class Settings:
     def loadSettings(self):
         # Load the settings from the settings file when the game starts
         try:
-            self.config.read(self.settingsPath)
+            if not Path(self.settingsConfig).exists():
+                self.saveSettings()
+            
+            self.config.read(self.settingsConfig)
             _configDict = {section: dict(self.config.items(section)) for section in self.config.sections()}
             self.settings = _configDict
             self.logger.info(f"Settings loaded: {self.settings}")
@@ -54,7 +58,26 @@ class Settings:
         except Exception as e:
             self.logger.error(f"Error saving settings: {e}")
             raise Exception(f"Error saving settings: {e}")
-    
+        
+    def getSetting(self, setting=None):
+        # Get the setting from the settings dictionary
+        if setting is None:
+            self.logger.error("No setting provided")
+            raise Exception("No setting provided")
+
+        _keys = setting.split(".")
+        _value = self.settings
+        for key in _keys:
+            if key in _value:
+               _value = _value[key]
+            else:
+                self.logger.error("Invalid setting")
+                raise Exception("Invalid setting")
+            
+        self.logger.info(f"Setting: {setting} Value: {_value}")
+        return _value
+        
+
     def setResolution(self, resolution= (1920, 1080)):
         # Check if the resolution is valid - cannot be less than 800x600
         if resolution[0] < 800 or resolution[1] < 600:
