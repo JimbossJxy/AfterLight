@@ -29,6 +29,7 @@ from datetime import datetime
 from pathlib import Path
 from src.util.misc import misc
 from perlin_noise import PerlinNoise
+from src.gameFunctions.world import Block
 
 # Constants
 class biome:
@@ -363,20 +364,22 @@ class chunkManager:
         
         if _chunkKey in self.file:
             _chunk = worldChunkGenerator(chunkX, chunkY, self.seed) # Generate chunk
-            self.file.create_dataset(_chunkKey, data=_chunk.data.astype("S")) 
+            self.file.create_dataset(_chunkKey + "_biome", data=_chunk.data.astype("S"))
+            self.file.create_dataset(_chunkKey + "_block", data=_chunk.data.astype("S"))
             self.logger.info(f"Chunk generated: {_chunkKey}")
             self.chunks[(chunkX, chunkY)] = _chunk # Add chunk to chunks dictionary
         
         else: 
-            _chunkData = self.file[_chunkKey][:].astype("U") # Load as unicode string
+            _biomeData = self.file[_chunkKey+"_biome"][:].astype("U") # Load as unicode string
+            _blockData = self.file[_chunkKey+"_block"][:].astype("U") # Load as unicode string
 
-            _chunk = worldChunkGenerator(chunkX, chunkY, self.seed, data=_chunkData) # Generate chunk
+            _chunk = worldChunkGenerator(chunkX, chunkY, self.seed, biomeData=_biomeData, blockData=_blockData) # Generate chunk
             self.chunks[(chunkX, chunkY)] = _chunk
             self.logger.info(f"Chunk loaded: {_chunkKey}")
         
         return self.chunks[(chunkX, chunkY)]
     
-    def updateBlock(self, chunkX, chunkY, x, y, value):
+    def updateBlock(self, chunkX, chunkY, blockX, blockY, value):
         """
         This function will update a block in a chunk.
         """
@@ -384,56 +387,55 @@ class chunkManager:
             self.logger.error(f"Invalid chunk: {chunkX}, {chunkY}")
             return 
         
-        _chunk = self.getChunk(chunkX, chunkY)
+        _chunk = self.chunks.get((chunkX, chunkY))
         if _chunk is None:
+            _chunk = self.getChunk(chunkX, chunkY)
+            if _chunk is None:
+                self.logger.error(f"Invalid chunk: {chunkX}, {chunkY}")
+                return
+        
+        if _chunk.BlockData[blockX][blockY] == biome.TECTONIC_PLATE:
+            self.logger.info(f"Block already set to {value}")
             return
-        
-        if _chunk.data[x, y] == biome.TECTONIC_PLATE:
-            self.logger.error(f"Cannot update block: {chunkX}, {chunkY}, {x}, {y} is a tectonic plate - Unbreakable block")
-            return 4 # Return 4 if the block is a tectonic plate
-        
-        _chunk.data[x][y] = value
+        _chunk.BlockData[blockX][blockY] = value
+        self.logger.info(f"Block updated to {value}")
         _chunkKey = f"chunk_{chunkX}_{chunkY}"
-        self.file[_chunkKey][:] = _chunk.data.astype("S")
-        self.logger.info(f"Block updated: {_chunkKey}, {x}, {y}, {value}")
+        self.file[_chunkKey+"_block"][:] = _chunk.BlockData.astype("S")
     
     def saveWorld(self):
         """
         This function will save the world to a file.
         """
-        self.logger.info(f"Saving world to file")
-        for (chunkX, chunkY), chunk in self.chunks.items():
-            _chunkKey = f"chunk_{chunkX}_{chunkY}"
-            self.file[_chunkKey][:] = chunk.data.astype("S")
-        self.file.close()
-        self.logger.info(f"World saved to file")
+        try:
+            self.logger.info(f"Saving world to file")
+            for (chunkX, chunkY), chunk in self.chunks.items():
+                _chunkKey = f"chunk_{chunkX}_{chunkY}"
+                self.file.create_dataset(_chunkKey+"_biome", data=chunk.biomeData.astype("S"))
+                self.file.create_dataset(_chunkKey+"_block", data=chunk.blockData.astype("S"))
+            self.file.close()
+            self.logger.info(f"World saved to file")
+
+        except Exception as e:
+            self.logger.error(f"Error saving world to file: {e}")
+            self.errorPopup(f"Error saving world to file: {e}")
+            raise ValueError(f"Error saving world to file: {e}")
 
     def loadWorld(self):
         """
         This function will load the world from a file.
         """
         self.logger.info(f"Loading world from file")
-        self.file = h5py.File(self.saveFolder / self.filename, "r")
+        self.file = h5py.File(f"{self.saveFolder}/{self.filename}", "r")
+        self.logger.info(f"Opened file: {self.filename}")
         for chunkKey in self.file.keys():
-            _chunkX, _chunkY = map(int, chunkKey.split("_")[1:])
-            _chunkData = self.file[chunkKey][:].astype("U")
-            self.chunks[(_chunkX, _chunkY)] = worldChunkGenerator(_chunkX, _chunkY, self.seed, data=_chunkData)
-
-        self.file.close()
+            if chunkKey.endswith("_biome"):
+                chunkX, chunkY = map(int, chunkKey.split("_")[1:3])
+                _biomeData = self.file[chunkKey][:].astype("U")
+                _blockData = self.file[chunkKey.replace("_biome", "_block")][:].astype("U")
+                self.chunks[(chunkX, chunkY)] = worldChunkGenerator(chunkX, chunkY, self.seed, biomeData=_biomeData, blockData=_blockData)
         self.logger.info(f"World loaded from file")
-    
-
-
-
-        
-
+        self.file.close()
         
     
-    
-        
 
-        
-
-
-
-        
+  
