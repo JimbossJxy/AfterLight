@@ -26,6 +26,7 @@ import zipfile
 from datetime import datetime
 from pathlib import Path
 from src.util.misc import misc
+from src.variables import saveGame
 
 
 class player:
@@ -234,12 +235,22 @@ class player:
     
     # save the player's stats to saveGame variable in variables.py
     def savePlayer(self):
-        data = {
-            "health": self.health,
-            "stamina": self.stamina,
-            "hunger": self.hunger,
-            "thirst": self.thirst
-        }
+        saveGame["player"]["health"] = self.health
+        saveGame["player"]["stamina"] = self.stamina
+        saveGame["player"]["hunger"] = self.hunger
+        saveGame["player"]["thirst"] = self.thirst
+        saveGame["player"]["position"] = self.rect.topleft
+        self.logger.info(f"Player stats saved to saveGame: {saveGame['player']}")
+
+    # load the player's stats from saveGame variable in variables.py
+    def loadPlayer(self):
+        self.health = saveGame["player"]["health"]
+        self.stamina = saveGame["player"]["stamina"]
+        self.hunger = saveGame["player"]["hunger"]
+        self.thirst = saveGame["player"]["thirst"]
+        self.rect.topleft = saveGame["player"]["position"]
+        self.logger.info(f"Player stats loaded from saveGame: {saveGame['player']}")
+        self.staminaReplenishmentRate = self.calculateStaminaReplenishmentRate()
         
 
 
