@@ -81,11 +81,10 @@ class menu:
             _mainMenuFont = (self.fontPath + "/" + "mainmenu.ttf")
             menuText = pygame.font.Font(_mainMenuFont, fontSize).render("Afterlight", True, (255, 255, 255))
 
-            
-            menuTextRect = menuText.get_rect(centre=(screen.get_width() / 2, 100))
+            # Remove the unused variable menuTextRect
 
             # Main Menu Buttons
-            resumeGameButton = Button(None, (screenWidth / 2, screenHeight / 2), "Resume Game", pygame.font.Font(_mainMenuFont, int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
+            resumeGameButton = Button(, (screenWidth / 2, screenHeight / 2), "Resume Game", pygame.font.Font(_mainMenuFont, int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
             newGameButton = Button(None, (screenWidth / 2, screenHeight / 2 + 50), "New Game", pygame.font.Font(_mainMenuFont, int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
             loadGameButton = Button(None, (screenWidth / 2, screenHeight / 2 + 100), "Load Game", pygame.font.Font(_mainMenuFont, int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
             statisticsButton = Button(None, (screenWidth / 2, screenHeight / 2 + 150), "Statistics", pygame.font.Font(_mainMenuFont, int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))

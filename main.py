@@ -67,7 +67,8 @@ class game:
             self.clock.tick(self.framerate)
 
     def draw(self):
-        self.screen.fill("lightblue")
+        menus = menu()
+        menus.mainMenu(self.screen)
     
     def close(self):
         pygame.quit()

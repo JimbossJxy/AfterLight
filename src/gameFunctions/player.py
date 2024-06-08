@@ -194,7 +194,13 @@ class player:
 
     # This function will be used to let the player respawn
     def respawn(self):
-        pass
+        self.health = self.maxHealth
+        self.stamina = self.maxStamina
+        self.hunger = self.maxHunger
+        self.thirst = self.maxThirst
+        self.logger.info("Player stats reset")
+        self.staminaReplenishmentRate = self.calculateStaminaReplenishmentRate()
+        self.logger.info("Player respawned")
 
     # this will draw the player to the screen
     def draw(self, surface):
@@ -210,7 +216,7 @@ class player:
     def getHealthPercentage(self):
         self.logger.info(f"Health: {self.health} Max Health: {self.maxHealth}")
         return self.health / self.maxHealth
-    
+     
     def getStaminaPercentage(self):
         self.logger.info(f"Stamina: {self.stamina} Max Stamina: {self.maxStamina}")
         return self.stamina / self.maxStamina
@@ -251,9 +257,6 @@ class player:
         self.rect.topleft = saveGame["player"]["position"]
         self.logger.info(f"Player stats loaded from saveGame: {saveGame['player']}")
         self.staminaReplenishmentRate = self.calculateStaminaReplenishmentRate()
-        
 
-
-        
 
         

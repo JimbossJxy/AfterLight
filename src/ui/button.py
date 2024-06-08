@@ -11,7 +11,6 @@ import logging
 
 class Button:
     def __init__(self, image, pos, textInput, font, colour, hoverColour):
-        self.image = image
         self.posX = pos[0]
         self.posY = pos[1]
         self.font = font
@@ -20,9 +19,10 @@ class Button:
         self.textInput = textInput
         self.text = self.font.render(self.textInput, True, self.baseColour)
         self.logger = logging.getLogger(__name__)
-        if self.image is not None:
-            self.image = self.image.convert_alpha()
-            self.image = pygame.transform.scale(self.image, (self.text.get_height(), self.text.get_height()))
+        if image is None:
+            self.image = self.text
+        else:
+            self.image = image
         self.rect = self.image.get_rect(center=(self.posX, self.posY))
         self.textRect = self.text.get_rect(center=(self.posX, self.posY))
 
