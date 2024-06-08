@@ -11,6 +11,19 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
+class gameState:
+    MAIN_MENU = 0
+    RESUME_GAME = 1
+    NEW_GAME = 2
+    LOAD_GAME = 3
+    STATISTICS = 4
+    SETTINGS = 5
+    PAUSE_MENU = 6
+    INVENTORY = 7
+    GAME = 8
+
+playerPosition = [0, 0]
+
 loadGame = {}
 saveGame = {
     "inventory": {},

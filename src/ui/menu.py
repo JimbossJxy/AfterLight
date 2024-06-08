@@ -65,29 +65,32 @@ class menu:
             self.errorPopup("Main Menu Background Not Found")
             return
         
+        
         pygame.display.set_caption("Afterlight - Main Menu")
         self.logger.info("Rendering Main Menu")
         
         while True:
+            screenWidth, screenHeight = screen.get_size()
             screen.blit(_background, (0, 0))
             pygame.display.update()
             mousePos = self.mousePos
             
             # Main Menu Text
-            screenWidth, screenHeight = screen.get_size()
+            
             fontSize = int(100 * (screenWidth / 1920))
-            menuText = pygame.font.Font(self.fontPath / "menuFont.ttf", fontSize).render("Afterlight", True, (255, 255, 255))
+            _mainMenuFont = (self.fontPath + "/" + "mainmenu.ttf")
+            menuText = pygame.font.Font(_mainMenuFont, fontSize).render("Afterlight", True, (255, 255, 255))
 
             
             menuTextRect = menuText.get_rect(centre=(screen.get_width() / 2, 100))
 
             # Main Menu Buttons
-            resumeGameButton = Button(None, (screenWidth / 2, screenHeight / 2), "Resume Game", pygame.font.Font(self.fontPath / "menuFont.ttf", int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
-            newGameButton = Button(None, (screenWidth / 2, screenHeight / 2 + 50), "New Game", pygame.font.Font(self.fontPath / "menuFont.ttf", int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
-            loadGameButton = Button(None, (screenWidth / 2, screenHeight / 2 + 100), "Load Game", pygame.font.Font(self.fontPath / "menuFont.ttf", int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
-            statisticsButton = Button(None, (screenWidth / 2, screenHeight / 2 + 150), "Statistics", pygame.font.Font(self.fontPath / "menuFont.ttf", int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
-            settingsButton = Button(None, (screenWidth / 2, screenHeight / 2 + 200), "Settings", pygame.font.Font(self.fontPath / "menuFont.ttf", int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
-            exitGameButton = Button(None, (screenWidth / 2, screenHeight / 2 + 250), "Exit Game", pygame.font.Font(self.fontPath / "menuFont.ttf", int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
+            resumeGameButton = Button(None, (screenWidth / 2, screenHeight / 2), "Resume Game", pygame.font.Font(_mainMenuFont, int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
+            newGameButton = Button(None, (screenWidth / 2, screenHeight / 2 + 50), "New Game", pygame.font.Font(_mainMenuFont, int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
+            loadGameButton = Button(None, (screenWidth / 2, screenHeight / 2 + 100), "Load Game", pygame.font.Font(_mainMenuFont, int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
+            statisticsButton = Button(None, (screenWidth / 2, screenHeight / 2 + 150), "Statistics", pygame.font.Font(_mainMenuFont, int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
+            settingsButton = Button(None, (screenWidth / 2, screenHeight / 2 + 200), "Settings", pygame.font.Font(_mainMenuFont, int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
+            exitGameButton = Button(None, (screenWidth / 2, screenHeight / 2 + 250), "Exit Game", pygame.font.Font(_mainMenuFont, int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
 
             # Update Buttons
             for button in (resumeGameButton, newGameButton, loadGameButton, statisticsButton, settingsButton, exitGameButton):
@@ -100,15 +103,28 @@ class menu:
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:
-                        if mousePos[0] in range(0, screenWidth) and mousePos[1] in range(0, screenHeight):
-                            self.logger.info("Main Menu Clicked")
-                            return
-                if event.type == pygame.MOUSEMOTION:
                     if resumeGameButton.checkForInput(mousePos):
                         self.logger.info("Resume Game Button Clicked")
-                        
                         return
+                    elif newGameButton.checkForInput(mousePos):
+                        self.logger.info("New Game Button Clicked")
+                        return
+                    elif loadGameButton.checkForInput(mousePos):
+                        self.logger.info("Load Game Button Clicked")
+                        return
+                    elif statisticsButton.checkForInput(mousePos):
+                        self.logger.info("Statistics Button Clicked")
+                        return
+                    elif settingsButton.checkForInput(mousePos):
+                        self.logger.info("Settings Button Clicked")
+                        return
+                    elif exitGameButton.checkForInput(mousePos):
+                        self.logger.info("Exit Game Button Clicked")
+                        self.logger.info("Game has been closed")
+                        pygame.quit()
+                        sys.exit()
+            
+            pygame.display.update()
 
 
     
@@ -129,7 +145,9 @@ class menu:
         """
         This function will render the settings menu of the game
         """
-        pass
+        while True:
+            screenWidth, screenHeight = screen.get_size()
+            
 
     def statisticsMenu(self, screen):
         """

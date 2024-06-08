@@ -55,3 +55,9 @@ class misc:
         _MessageboxIconQuestion = 0x20
         return ctypes.windll.user32.MessageBoxW(0, message, title, _MessageboxYesNo | _MessageboxIconQuestion)
 
+
+if __name__ == "__main__":
+    misc().warningPopup("Test", "This is a test warning popup.")
+    misc().errorPopup("This is a test error popup.")
+    print(misc().yesNoPopup("Test", "This is a test yes/no popup."))
+    print("Test complete.")

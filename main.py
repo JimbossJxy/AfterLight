@@ -35,6 +35,7 @@ import sys
 # These imports use libraries that are not built in
 from src.util.settings import Settings
 from src.gameFunctions import world
+from src.ui.menu import menu
     
 class game:
     def __init__(self):
