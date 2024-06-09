@@ -25,6 +25,9 @@ from pathlib import Path
 from src.util.misc import misc 
 from src.util.gamerunner import startup
 from src.gameFunctions.player import player
+from src.variables import colours
+from src.util.settings import Settings
+
 
 
 
@@ -75,6 +78,92 @@ class Button:
         surface.blit(self.image, (self.rect.x, self.rect.y))
         return action
 
+# Slider class for floats
+class Slider:
+    def __init__(self, x, y, width, height, value):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.value = value
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, colours.GREY, self.rect)
+        handle_rect = pygame.Rect(self.rect.x + self.value * self.rect.width - 10, self.rect.y - 10, 20, self.rect.height + 20)
+        pygame.draw.rect(screen, colours.RED, handle_rect)
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
+            self.value = (event.pos[0] - self.rect.x) / self.rect.width
+
+# Dropdown class for colorblind type
+class Dropdown:
+    def __init__(self, x, y, options, selected):
+        self.rect = pygame.Rect(x, y, 200, 30)
+        self.options = options
+        self.selected = selected
+        self.show_options = False
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, colours.GRAY, self.rect)
+        text_surface = fonts.SMALL_MAINFONT.render(self.selected, True, colours.WHITE)
+        screen.blit(text_surface, (self.rect.x + 10, self.rect.y + 5))
+        
+        if self.show_options:
+            for i, option in enumerate(self.options):
+                option_rect = pygame.Rect(self.rect.x, self.rect.y + (i + 1) * 30, self.rect.width, self.rect.height)
+                pygame.draw.rect(screen, colours.GRAY, option_rect)
+                option_surface = fonts.SMALL_MAINFONT.render(option, True, colours.WHITE)
+                screen.blit(option_surface, (option_rect.x + 10, option_rect.y + 5))
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                self.show_options = not self.show_options
+            elif self.show_options:
+                for i, option in enumerate(self.options):
+                    option_rect = pygame.Rect(self.rect.x, self.rect.y + (i + 1) * 30, self.rect.width, self.rect.height)
+                    if option_rect.collidepoint(event.pos):
+                        self.selected = option
+                        self.show_options = False
+                        break
+                else:
+                    self.show_options = False
+
+# RadioButton class for booleans
+class RadioButton:
+    def __init__(self, x, y, text, selected):
+        self.x = x
+        self.y = y
+        self.text = text
+        self.selected = selected
+
+    def draw(self, screen):
+        pygame.draw.circle(screen, colours.BLACK, (self.x, self.y), 10, 0 if self.selected else 2)
+        text_surface = fonts.SMALL_MAINFONT.render(self.text, True, colours.WHITE)
+        screen.blit(text_surface, (self.x + 20, self.y - 10))
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if pygame.Rect(self.x - 10, self.y - 10, 20, 20).collidepoint(event.pos):
+                self.selected = not self.selected
+
+# TextBox class for keybinds
+class TextBox:
+    def __init__(self, x, y, text):
+        self.rect = pygame.Rect(x, y, 200, 30)
+        self.text = text
+        self.active = False
+
+    def draw(self, screen):
+        color = colours.RED if self.active else colours.GREY
+        pygame.draw.rect(screen, color, self.rect, 2)
+        text_surface = fonts.SMALL_MAINFONT.render(self.text, True, colours.WHITE)
+        screen.blit(text_surface, (self.rect.x + 10, self.rect.y + 5))
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            self.active = self.rect.collidepoint(event.pos)
+        if event.type == pygame.KEYDOWN and self.active:
+            self.text = pygame.key.name(event.key)
+
 class MainMenu:
     def __init__(self, screen):
 
@@ -115,10 +204,66 @@ class MainMenu:
 
         pygame.quit()
 
+# Define the SettingsMenu class
+class SettingsMenu:
+    def __init__(self, screen):
+        
+        pygame.display.set_caption("Afterlight - Settings Menu")
 
+        # Create UI elements
+        self.ui_elements = {
+            "fullscreen": RadioButton(100, 100, "Fullscreen", Settings.getSetting("displaySettings.fullscreen")),
+            "vsync": RadioButton(100, 150, "V-Sync", Settings.getSetting("displaySettings.vsync")),
+            "textureQuality": Slider(100, 200, 200, 20, Settings.getSetting("graphicsSettings.textureQuality")),
+            "lighting": Slider(100, 250, 200, 20, Settings.getSetting("graphicsSettings.lighting")),
+            "masterVolume": Slider(100, 300, 200, 20, Settings.getSetting("audioSettings.masterVolume")),
+            "colourBlindMode": RadioButton(100, 350, "Colour Blind Mode", Settings.getSetting("accessibilitySettings.colourBlindMode")),
+            "colourBlindType": Dropdown(100, 400, ["protanopia", "deuteranopia", "tritanopia"], Settings.getSetting("accessibilitySettings.colourBlindType")),
+            "moveLeft": TextBox(100, 450, Settings.getSetting("keybinds.moveLeft")),
+            "moveRight": TextBox(100, 500, Settings.getSetting("keybinds.moveRight")),
+        }
 
+        self.apply_button = pygame.Rect(100, 550, 200, 50)
 
+    def run(self):
+        running = True
+        while running:
+            self.screen.fill(colours.BLACK)
 
+            for element in self.ui_elements.values():
+                element.draw(self.screen)
+
+            pygame.draw.rect(self.screen, colours.RED, self.apply_button)
+            apply_text = fonts.MED_MAINFONT.render("Apply", True, colours.WHITE)
+            self.screen.blit(apply_text, (self.apply_button.x + 50, self.apply_button.y + 10))
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+
+                for element in self.ui_elements.values():
+                    element.handle_event(event)
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.apply_button.collidepoint(event.pos):
+                        self.apply_settings()
+
+            pygame.display.update()
+
+        pygame.quit()
+
+    def apply_Settings(self):
+        Settings.setFullscreen(self.ui_elements["fullscreen"].selected)
+        Settings.vsync(self.ui_elements["vsync"].selected)
+        Settings.textureQuality(self.ui_elements["textureQuality"].value)
+        Settings.lighting(self.ui_elements["lighting"].value)
+        Settings.setVolume(self.ui_elements["masterVolume"].value)
+        Settings.setColourBlindMode(self.ui_elements["colourBlindMode"].selected)
+        Settings.setColourBlindModeType(self.ui_elements["colourBlindType"].selected)
+        Settings.setKeyBindings("moveLeft", self.ui_elements["moveLeft"].text)
+        Settings.setKeyBindings("moveRight", self.ui_elements["moveRight"].text)
+        Settings.saveSettings()
+        print("Settings applied and saved.")
 
 class menu:
     def __init__(self):
@@ -153,52 +298,6 @@ class menu:
         """
         pass
 
-    def mainMenu(self, screen):
-        """
-        This function will render the main menu of the game
-        """
-        # create buttons
-        running = True
-        titleFont = fonts.MAINMENU
-        titleText = "Afterlight - Main Menu"
-        titleX = (self.screenWidth - titleFont.size(titleText)[0]) // 2
-        titleY = self.screenHeight // 4
-        self.draw_text(screen, titleText, titleFont, (255, 255, 255), titleX, titleY)
-
-        buttonScale = 0.5
-        buttonX = (self.screenWidth - menuImages.RESUME_GAME.get_width() * buttonScale) // 2
-        buttonY = titleY + titleFont.size(titleText)[1] + 50
-
-        resumeButton = Button(buttonX, buttonY, menuImages.RESUME_GAME, buttonScale)
-        newGameButton = Button(buttonX, buttonY + 100, menuImages.NEW_GAME, buttonScale)
-        loadGameButton = Button(buttonX, buttonY + 200, menuImages.LOAD_GAME, buttonScale)
-        statisticsButton = Button(buttonX, buttonY + 300, menuImages.STATISTICS, buttonScale)
-        settingsButton = Button(buttonX, buttonY + 400, menuImages.SETTINGS, buttonScale)
-        exitButton = Button(buttonX, buttonY + 500, menuImages.EXIT_GAME, buttonScale)
-
-        while running:
-            screen.blit(menuImages.BACKGROUND, (0, 0))
-
-            if resumeButton.draw(screen):
-                self.logger.info("Resume Game Button Clicked")
-            if newGameButton.draw(screen):
-                self.logger.info("New Game Button Clicked")
-            if loadGameButton.draw(screen):
-                self.logger.info("Load Game Button Clicked")
-            if statisticsButton.draw(screen):
-                self.logger.info("Statistics Button Clicked")
-            if settingsButton.draw(screen):
-                self.logger.info("Settings Button Clicked")
-            if exitButton.draw(screen):
-                self.logger.info("Exit Game Button Clicked")
-                pygame.quit()
-                self.logger.info("Game has been closed")
-                sys.exit()
-
-
-
-
-    
     
     def newGameMenu(self, screen):
         """
