@@ -10,7 +10,7 @@ Referenced Code:
 """
 
 
-from src.ui import menu
+#from src.ui import menu
 
 import src.util.gamerunner 
 import src.util.initialise as initialise
@@ -34,8 +34,8 @@ import sys
 
 # These imports use libraries that are not built in
 from src.util.settings import Settings
-from src.gameFunctions import world
-from src.ui.menu import menu
+
+#from src.ui.menu import menu
     
 class game:
     def __init__(self):
@@ -67,8 +67,8 @@ class game:
             self.clock.tick(self.framerate)
 
     def draw(self):
-        menus = menu()
-        menus.mainMenu(self.screen)
+        self.screen.fill((0, 0, 0))
+        
     
     def close(self):
         pygame.quit()

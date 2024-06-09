@@ -27,17 +27,96 @@ from src.util.gamerunner import startup
 from src.gameFunctions.player import player
 
 
+
 class menuImages:
-    logger = logging.getLogger(__name__)
+    
     assestsPath = str(Path.home() / "Documents" / "Afterlight" / "Assets")
 
-    RESUME_GAME = pygame.image.load(assestsPath + "/Menus/mainMenu/Images/ResumeGame.png")
-    NEW_GAME = pygame.image.load(assestsPath + "/Menus/mainMenu/Images/NewGame.png")
-    LOAD_GAME = pygame.image.load(assestsPath + "/Menus/mainMenu/Images/LoadGame.png")
-    STATISTICS = pygame.image.load(assestsPath + "/Menus/mainMenu/Images/Statistics.png")
-    SETTINGS = pygame.image.load(assestsPath + "/Menus/mainMenu/Images/Settings.png")
-    EXIT_GAME = pygame.image.load(assestsPath + "/Menus/mainMenu/Images/ExitGame.png")
+    RESUME_GAME = pygame.image.load(assestsPath + "/Menus/mainMenu/Images/ResumeGame.png").convert_alpha()
+    NEW_GAME = pygame.image.load(assestsPath + "/Menus/mainMenu/Images/NewGame.png").convert_alpha()
+    LOAD_GAME = pygame.image.load(assestsPath + "/Menus/mainMenu/Images/LoadGame.png").convert_alpha()
+    STATISTICS = pygame.image.load(assestsPath + "/Menus/mainMenu/Images/Statistics.png").convert_alpha()
+    SETTINGS = pygame.image.load(assestsPath + "/Menus/mainMenu/Images/Settings.png").convert_alpha()
+    EXIT_GAME = pygame.image.load(assestsPath + "/Menus/mainMenu/Images/ExitGame.png").convert_alpha()
+
+    BACKGROUND = pygame.image.load(assestsPath + "/Menus/mainMenu/Images/Background.png")
     
+
+class fonts:
+    MAINMENU = pygame.font.Font(str(Path.home() / "Documents" / "Afterlight" / "Assets" / "Menus" / "Fonts" / "mainMenu.ttf"), 50)
+    MAINFONT = pygame.font.Font(str(Path.home() / "Documents" / "Afterlight" / "Assets" / "Menus" / "Fonts" / "mainFont.ttf"), 50)
+
+    # Font sizes - Menu
+    MED_MAINFONT = pygame.font.Font(str(Path.home() / "Documents" / "Afterlight" / "Assets" / "Menus" / "Fonts" / "mainFont.ttf"), 40)
+    SMALL_MAINFONT = pygame.font.Font(str(Path.home() / "Documents" / "Afterlight" / "Assets" / "Menus" / "Fonts" / "mainFont.ttf"), 30)
+
+
+# https://github.com/russs123/pygame_tutorials/blob/main/Menu/button.py
+# Define the Button class
+class Button:
+    def __init__(self, image, x, y):
+        self.image = image
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.clicked = False
+
+    def draw(self, surface):
+        action = False
+        pos = pygame.mouse.get_pos()
+
+        # Check mouseover and clicked conditions
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0] == 1 and not self.clicked:
+                self.clicked = True
+                action = True
+            if pygame.mouse.get_pressed()[0] == 0:
+                self.clicked = False
+
+        # Draw button on the screen
+        surface.blit(self.image, (self.rect.x, self.rect.y))
+        return action
+
+class MainMenu:
+    def __init__(self, screen):
+
+        SCREEN_WIDTH, SCREEN_HEIGHT = screen.get_size()
+        pygame.display.set_caption("Afterlight - Main Menu")
+
+        self.background = menuImages.BACKGROUND
+
+        # Create buttons
+        self.buttons = {
+            "resumeGame": Button(menuImages.RESUME_GAME, 810, 300),
+            "newGame": Button(menuImages.NEW_GAME, 810, 450),
+            "loadGame": Button(menuImages.LOAD_GAME, 810, 600),
+            "statistics": Button(menuImages.STATISTICS, 810, 750),
+            "settings": Button(menuImages.SETTINGS, 810, 900),
+            "exitGame": Button(menuImages.EXIT_GAME, 810, 1050),
+        }
+
+        self.titleFont = fonts.MAINMENU
+        self.titleSurface = self.titleFont.render("Afterlight", True, (255, 255, 255))
+        self.titleRect = self.titleSurface.get_rect(center=(SCREEN_WIDTH // 2, 150))
+
+    def run(self):
+        running = True
+        while running:
+            self.screen.blit(self.background, (0, 0))
+            self.screen.blit(self.titleSurface, self.titleRect)
+
+            for button in self.buttons.values():
+                if button.draw(self.screen):
+                    print(f"{button} button clicked")
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+
+            pygame.display.update()
+
+        pygame.quit()
+
+
+
 
 
 
@@ -59,7 +138,13 @@ class menu:
         self.fontPath = str(Path.home() / "Documents" / "Afterlight" / "Assets" / "Menus"/ "Fonts")
         self.mousePos = pygame.mouse.get_pos()
         self.menuItems = ["Resume Game", "New Game", "Load Game", "Statistics", "Settings", "Exit Game"]
+        self.menuState = "mainMenu"
+        self.gamePaused = False
+        self.screenWidth, self.screenHeight = pygame.display.get_surface().get_size()
 
+    def draw_text(self, screen, text, font, text_col, x, y):
+        img = font.render(text, True, text_col)
+        screen.blit(img, (x, y))
 
 
     def loadingScreen(self, screen):
@@ -72,9 +157,45 @@ class menu:
         """
         This function will render the main menu of the game
         """
+        # create buttons
+        running = True
+        titleFont = fonts.MAINMENU
+        titleText = "Afterlight - Main Menu"
+        titleX = (self.screenWidth - titleFont.size(titleText)[0]) // 2
+        titleY = self.screenHeight // 4
+        self.draw_text(screen, titleText, titleFont, (255, 255, 255), titleX, titleY)
+
+        buttonScale = 0.5
+        buttonX = (self.screenWidth - menuImages.RESUME_GAME.get_width() * buttonScale) // 2
+        buttonY = titleY + titleFont.size(titleText)[1] + 50
+
+        resumeButton = Button(buttonX, buttonY, menuImages.RESUME_GAME, buttonScale)
+        newGameButton = Button(buttonX, buttonY + 100, menuImages.NEW_GAME, buttonScale)
+        loadGameButton = Button(buttonX, buttonY + 200, menuImages.LOAD_GAME, buttonScale)
+        statisticsButton = Button(buttonX, buttonY + 300, menuImages.STATISTICS, buttonScale)
+        settingsButton = Button(buttonX, buttonY + 400, menuImages.SETTINGS, buttonScale)
+        exitButton = Button(buttonX, buttonY + 500, menuImages.EXIT_GAME, buttonScale)
+
+        while running:
+            screen.blit(menuImages.BACKGROUND, (0, 0))
+
+            if resumeButton.draw(screen):
+                self.logger.info("Resume Game Button Clicked")
+            if newGameButton.draw(screen):
+                self.logger.info("New Game Button Clicked")
+            if loadGameButton.draw(screen):
+                self.logger.info("Load Game Button Clicked")
+            if statisticsButton.draw(screen):
+                self.logger.info("Statistics Button Clicked")
+            if settingsButton.draw(screen):
+                self.logger.info("Settings Button Clicked")
+            if exitButton.draw(screen):
+                self.logger.info("Exit Game Button Clicked")
+                pygame.quit()
+                self.logger.info("Game has been closed")
+                sys.exit()
 
 
-        pass
 
 
     
@@ -110,7 +231,12 @@ class menu:
         This function will render the popup menu of the game. It will overlay the in game screen.
         """
         pass
-
+    
+    def tutorialOverlay(self, screen):
+        """
+        This function will render the tutorial overlay of the game. It will overlay the in game screen.
+        """
+        pass
 
 
 class hotbar:

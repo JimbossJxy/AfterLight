@@ -38,6 +38,7 @@ class player:
         self.defaultPath = str(Path.home() / "Documents" / "Afterlight")
         self.logger = logging.getLogger(__name__)
 
+
         # Other Objects - These are objects that are used by the class
         self.images = {
             "up": "Assets/Player/Up.png",
@@ -66,10 +67,7 @@ class player:
         self.health = self.maxHealth
         self.maxStamina = 100
         self.stamina = self.maxStamina
-        self.maxHunger = 100
-        self.hunger = self.maxHunger
-        self.maxThirst = 100
-        self.thirst = self.maxThirst
+        
 
         # Stamina depletion and replenishment rates
         self.stanimaDeplationRate = self.maxStamina / (frameRate * 8.25)
@@ -196,21 +194,14 @@ class player:
     def respawn(self):
         self.health = self.maxHealth
         self.stamina = self.maxStamina
-        self.hunger = self.maxHunger
-        self.thirst = self.maxThirst
         self.logger.info("Player stats reset")
         self.staminaReplenishmentRate = self.calculateStaminaReplenishmentRate()
         self.logger.info("Player respawned")
 
     # this will draw the player to the screen
-    def draw(self, surface):
-        surface.blit(self.image, self.rect.topleft)
     
     # This function will be used to update the player
-    def update(self, keys):
-        self.updateDirection(keys)
-        self.move(keys)
-        self.updateAnimation()
+
     
     # This function will be used to update the player's stats
     def getHealthPercentage(self):
@@ -221,22 +212,6 @@ class player:
         self.logger.info(f"Stamina: {self.stamina} Max Stamina: {self.maxStamina}")
         return self.stamina / self.maxStamina
     
-    def getHungerPercentage(self):
-        self.logger.info(f"Hunger: {self.hunger} Max Hunger: {self.maxHunger}")
-        return self.hunger / self.maxHunger
-    
-    def getThirstPercentage(self):
-        self.logger.info(f"Thirst: {self.thirst} Max Thirst: {self.maxThirst}")
-        return self.thirst / self.maxThirst
-    
-    # Reduce the player's stats
-    def reduceHunger(self, amount):
-        self.hunger = max(self.hunger - amount, 0)
-        self.logger.info(f"Hunger reduced by {amount}")
-    
-    def reduceThirst(self, amount):
-        self.thirst = max(self.thirst - amount, 0)
-        self.logger.info(f"Thirst reduced by {amount}")
 
     
     # save the player's stats to saveGame variable in variables.py
