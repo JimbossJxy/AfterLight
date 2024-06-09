@@ -285,3 +285,27 @@ class inventory:
         self.logger.info("Inventory is full")
         return True
         
+
+if __name__ == "__main__":
+    # Create an instance of the inventory class
+    inv = inventory()
+
+    # Test loading inventory
+    inv.loadInventory({"item": "sword", "quantity": 1, "description": "A powerful weapon", "isStackable": False, "isUsable": True, "maxQuantity": 1, "damage": 10, "name": "Sword", "brittleness": 0.5, "percentage": 100.0})
+
+    # Test adding items
+    inv.addItem("sword", 1)
+    inv.addItem("potion", 5)
+
+    # Test removing items
+    inv.removeItem("sword", 1)
+    inv.removeItem("potion", 3)
+
+    # Test checking if item exists
+    print(inv.hasItem("sword", 1))  # Should return False
+
+    # Test checking free slots
+    print(inv.freeSlots())  # Should return 0
+
+    # Test checking if inventory is full
+    print(inv.isFull())  # Should return True

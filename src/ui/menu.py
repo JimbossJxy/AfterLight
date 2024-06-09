@@ -8,6 +8,7 @@ Purpose of Document: This document will be used to handle any menu logic and ren
 
 """
 import os
+import src
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
@@ -23,7 +24,21 @@ from datetime import datetime
 from pathlib import Path
 from src.util.misc import misc 
 from src.util.gamerunner import startup
-from src.ui.button import Button
+from src.gameFunctions.player import player
+
+
+class menuImages:
+    logger = logging.getLogger(__name__)
+    assestsPath = str(Path.home() / "Documents" / "Afterlight" / "Assets")
+
+    RESUME_GAME = pygame.image.load(assestsPath + "/Menus/mainMenu/Images/ResumeGame.png")
+    NEW_GAME = pygame.image.load(assestsPath + "/Menus/mainMenu/Images/NewGame.png")
+    LOAD_GAME = pygame.image.load(assestsPath + "/Menus/mainMenu/Images/LoadGame.png")
+    STATISTICS = pygame.image.load(assestsPath + "/Menus/mainMenu/Images/Statistics.png")
+    SETTINGS = pygame.image.load(assestsPath + "/Menus/mainMenu/Images/Settings.png")
+    EXIT_GAME = pygame.image.load(assestsPath + "/Menus/mainMenu/Images/ExitGame.png")
+    
+
 
 
 class menu:
@@ -57,73 +72,9 @@ class menu:
         """
         This function will render the main menu of the game
         """
-        try:
-            _background =  pygame.image.load(str(os.path.join(self.menuPath,"MainMenu","Background.png")))
-            self.logger.info("Main Menu Background Loaded")
-        except FileNotFoundError as e:
-            self.logger.error("Main Menu Background Not Found")
-            self.errorPopup("Main Menu Background Not Found")
-            return
-        
-        
-        pygame.display.set_caption("Afterlight - Main Menu")
-        self.logger.info("Rendering Main Menu")
-        
-        while True:
-            screenWidth, screenHeight = screen.get_size()
-            screen.blit(_background, (0, 0))
-            pygame.display.update()
-            mousePos = self.mousePos
-            
-            # Main Menu Text
-            
-            fontSize = int(100 * (screenWidth / 1920))
-            _mainMenuFont = (self.fontPath + "/" + "mainmenu.ttf")
-            menuText = pygame.font.Font(_mainMenuFont, fontSize).render("Afterlight", True, (255, 255, 255))
 
-            # Remove the unused variable menuTextRect
 
-            # Main Menu Buttons
-            resumeGameButton = Button(, (screenWidth / 2, screenHeight / 2), "Resume Game", pygame.font.Font(_mainMenuFont, int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
-            newGameButton = Button(None, (screenWidth / 2, screenHeight / 2 + 50), "New Game", pygame.font.Font(_mainMenuFont, int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
-            loadGameButton = Button(None, (screenWidth / 2, screenHeight / 2 + 100), "Load Game", pygame.font.Font(_mainMenuFont, int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
-            statisticsButton = Button(None, (screenWidth / 2, screenHeight / 2 + 150), "Statistics", pygame.font.Font(_mainMenuFont, int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
-            settingsButton = Button(None, (screenWidth / 2, screenHeight / 2 + 200), "Settings", pygame.font.Font(_mainMenuFont, int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
-            exitGameButton = Button(None, (screenWidth / 2, screenHeight / 2 + 250), "Exit Game", pygame.font.Font(_mainMenuFont, int(50 * (screenWidth / 1920))), (255, 255, 255), (255, 255, 255))
-
-            # Update Buttons
-            for button in (resumeGameButton, newGameButton, loadGameButton, statisticsButton, settingsButton, exitGameButton):
-                button.changeColour(mousePos)
-                button.update(screen)
-
-            # Update Text
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if resumeGameButton.checkForInput(mousePos):
-                        self.logger.info("Resume Game Button Clicked")
-                        return
-                    elif newGameButton.checkForInput(mousePos):
-                        self.logger.info("New Game Button Clicked")
-                        return
-                    elif loadGameButton.checkForInput(mousePos):
-                        self.logger.info("Load Game Button Clicked")
-                        return
-                    elif statisticsButton.checkForInput(mousePos):
-                        self.logger.info("Statistics Button Clicked")
-                        return
-                    elif settingsButton.checkForInput(mousePos):
-                        self.logger.info("Settings Button Clicked")
-                        return
-                    elif exitGameButton.checkForInput(mousePos):
-                        self.logger.info("Exit Game Button Clicked")
-                        self.logger.info("Game has been closed")
-                        pygame.quit()
-                        sys.exit()
-            
-            pygame.display.update()
+        pass
 
 
     
@@ -161,8 +112,47 @@ class menu:
         pass
 
 
+
+class hotbar:
+    def __init__(self,  screen, slotCount=7, slotSize=64, padding=10, margin=20):
+        self.screen = screen
+        self.slotCount = slotCount
+        self.slotSize = slotSize
+        self.padding = padding
+        self.margin = margin
+        self.slots = []
+        self.selectedSlot = 0
+
+        self.logger = logging.getLogger(__name__)
+
+        self.screenWidth, self.screenHeight = self.screen.get_size()
+        self.hotbarWidth = slotCount * (slotSize + padding) - padding
+        self.hotbarRect = pygame.Rect((self.screenWidth - self.hotbarWidth) // 2, self.screenHeight - slotSize - margin, self.hotbarWidth, slotSize)
+
+        for i in range(slotCount):
+            x = self.hotbarRect.x + i * (slotSize + padding)
+            y = self.hotbarRect.y
+            rect = pygame.Rect(x, y, slotSize, slotSize)
+            self.slots.append(rect)
+    
+    def draw(self):
+        for i, slot in enumerate(self.slots):
+            colour = (255, 255, 255) if i != self.selectedSlot else (128, 128, 128)
+            pygame.draw.rect(self.screen, colour, slot, 2)
+
+            # Draw the item in the slot
+            # This is a placeholder
+            #itemImage = pygame.image.load("path/to/item.png").convert_alpha()
+            #itemImage = pygame.transform.scale(itemImage, (self.slotSize, self.slotSize))
+            #self.screen.blit(itemImage, slot.topleft)
+        
+    def selectSlot(self, slot):
+        if 0 <= slot < self.slotCount:
+            self.selectedSlot = slot
+        
+       
 class inGameRenderEngine:
-    def __init__(self):
+    def __init__(self, screen, frameRate=60):
         self.misc = misc()
         self.warningPopup = self.misc.warningPopup
         self.errorPopup = self.misc.errorPopup
@@ -170,5 +160,65 @@ class inGameRenderEngine:
         self.assestsPath = str(Path.home() / "Documents" / "Afterlight" / "Assets")
         
         self.logger = logging.getLogger(__name__)
+
+        self.screen = screen
+        self.clock = pygame.time.Clock() # This is the clock object
+        self.frameRate = frameRate # This is the frame rate of the game
+        self.hotbar = hotbar(screen) # This is the hotbar object
+
+        self.screenWidth, self.screenHeight = self.screen.get_size() # Gets the screen size for x and y
+        self.tileSize = 38 # This is in px
+
+        # Player position
+        self.playerCentreX, self.playerCentreY = self.player.rect.center
+
+        self.logger.info("In Game Render Engine Initialised")
+        
+    
+
+    def run(self):
+        running = True
+        while running:
+            
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_1:
+                        self.hotbar.selectSlot(0)
+                    elif event.key == pygame.K_2:
+                        self.hotbar.selectSlot(1)
+                    elif event.key == pygame.K_3:
+                        self.hotbar.selectSlot(2)
+                    elif event.key == pygame.K_4:
+                        self.hotbar.selectSlot(3)
+                    elif event.key == pygame.K_5:
+                        self.hotbar.selectSlot(4)
+                    elif event.key == pygame.K_6:
+                        self.hotbar.selectSlot(5)
+                    elif event.key == pygame.K_7:
+                        self.hotbar.selectSlot(6)
+                    elif event.key == pygame.K_ESCAPE:
+                        running = False
+            
+            self.screen.fill((0, 0, 0))
+            self.hotbar.draw()
+            pygame.display.flip()
+            self.clock.tick(self.frameRate)
+        
+        pygame.quit()
+        self.logger.info("Game has been closed")
+        sys.exit()
+
+    def drawWorld(self):
+        """
+        This function will render the world of the game
+        """
+        startCol = (self.playerCentreX - self.screenWidth // 2) // self.tileSize
+        startRow = (self.playerCentreY - self.screenHeight // 2) // self.tileSize
+
+
+        
+        
     
     

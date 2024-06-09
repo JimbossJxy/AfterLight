@@ -49,3 +49,4 @@ class entity:
         self.rect = self.image.get_rect(topleft=position)
         self.mask = pygame.mask.from_surface(self.image)
         self.direction = "right" #The direction the player is facing
+        

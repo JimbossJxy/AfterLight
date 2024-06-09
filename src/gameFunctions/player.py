@@ -260,3 +260,103 @@ class player:
 
 
         
+def test_player_functions():
+    # Create a player object
+    p = player()
+
+    # Test updateDirection function
+    keys = {pygame.K_w: True}
+    p.updateDirection(keys)
+    assert p.direction == "up"
+    assert p.image == p.images["up"]
+
+    keys = {pygame.K_s: True}
+    p.updateDirection(keys)
+    assert p.direction == "down"
+    assert p.image == p.images["down"]
+
+    keys = {pygame.K_a: True}
+    p.updateDirection(keys)
+    assert p.direction == "left"
+    assert p.image == p.images["left"]
+
+    keys = {pygame.K_d: True}
+    p.updateDirection(keys)
+    assert p.direction == "right"
+    assert p.image == p.images["right"]
+
+    keys = {}
+    p.updateDirection(keys)
+    assert p.currentAnimation == "walking"
+
+    # Test move function
+    keys = {pygame.K_w: True}
+    p.move(keys)
+    assert p.rect.y == -p.defaultSpeed
+
+    keys = {pygame.K_s: True}
+    p.move(keys)
+    assert p.rect.y == 0
+
+    keys = {pygame.K_a: True}
+    p.move(keys)
+    assert p.rect.x == -p.defaultSpeed
+
+    keys = {pygame.K_d: True}
+    p.move(keys)
+    assert p.rect.x == 0
+
+    # Test replenishStamina function
+    p.hunger = 50
+    p.thirst = 50
+    p.staminaReplenishmentTimer = p.staminaReplenishmentDelay
+    p.replenishStamina()
+    assert p.thirst == 50 - 0.015
+
+    p.staminaReplenishmentTimer = p.staminaReplenishmentDelay - 1
+    p.replenishStamina()
+    assert p.staminaReplenishmentTimer == p.staminaReplenishmentDelay
+
+    # Test updateAnimation function
+    p.currentAnimation = "idle"
+    p.animationTimer = 0.9
+    p.updateAnimation()
+    assert p.animationTimer == 0
+    assert p.animationIndex == 1
+    assert p.image == p.animations[p.currentAnimation][p.animationIndex]
+
+    # Test reduceHunger function
+    p.hunger = 50
+    p.reduceHunger(10)
+    assert p.hunger == 40
+
+    # Test reduceThirst function
+    p.thirst = 50
+    p.reduceThirst(10)
+    assert p.thirst == 40
+
+    # Test savePlayer and loadPlayer functions
+    p.health = 80
+    p.stamina = 90
+    p.hunger = 70
+    p.thirst = 60
+    p.rect.topleft = (100, 100)
+    p.savePlayer()
+
+    p.health = 0
+    p.stamina = 0
+    p.hunger = 0
+    p.thirst = 0
+    p.rect.topleft = (0, 0)
+    p.loadPlayer()
+
+    assert p.health == 80
+    assert p.stamina == 90
+    assert p.hunger == 70
+    assert p.thirst == 60
+    assert p.rect.topleft == (100, 100)
+
+    print("All player functions tested successfully.")
+
+# Run the test function
+test_player_functions()

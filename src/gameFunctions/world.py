@@ -166,14 +166,52 @@ class world:
         self.logger = logging.getLogger(__name__)
 
         # Other Objects - These are objects that are used by the class
-        
+
+    def convertLetterToNumber(self, letter):
+            """
+            This function converts a letter character to its corresponding number in the alphabet.
+            """
+            letter = letter.upper()  # Convert to uppercase to handle both lowercase and uppercase letters
+            alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            if letter in alphabet:
+                return alphabet.index(letter) + 1  # Add 1 to get the number corresponding to the letter
+            else:
+                return None  # Return None if the character is not a letter
+
+    def convertSpecialCharacterToNumber(self, character):
+        """
+        This function converts a special character to a number.
+        """
+        specialCharacters = "!@#$%^&*()_+{}|:<>?`~-=[]\;',./"
+        if character in specialCharacters:
+            return specialCharacters.index(character) + 1
+        else:
+            return None
+           
+    
     def generateSeed(self, seed):
         """
         This function will generate a seed for the world based on the user input.
         """
+        
         if seed:
             # Use user-provided seed
-            self.seed = seed
+            seed_list = list(seed)
+            number_list = []
+
+            while seed_list:
+                character = seed_list.pop()
+                if character.isdigit():
+                    number_list.append(int(character))
+                else:
+                    number = myWorld.convertSpecialCharacterToNumber(character)
+                    if number is None:
+                        number = myWorld.convertLetterToNumber(character)
+                    if number is not None:
+                        number_list.append(number)
+
+            generated_seed = int(''.join(map(str, number_list)))
+            self.seed = generated_seed
         else:
             # Generate random seed
             self.seed = ''.join(random.choices(string.ascii_letters + string.digits, k=random.randint(1, 64)))
@@ -194,17 +232,17 @@ class worldChunkGenerator:
         self.logger = logging.getLogger(__name__)
 
         # Other Objects - These are objects that are used by the class
-        self.chunkX = chunkX
-        self.chunkY = chunkY
+        self.chunkX = int(chunkX)
+        self.chunkY = int(chunkY)
         self.seed = seed
         self.biomeData = biomeData if biomeData is not None else self.generateBiomeChunk()
         self.blockData = blockData if blockData is not None else self.generateBlockChunk()
 
         # Chunk limits
+       
         self.chunkSize = 16
-        self.worldSize = 100000
-        self.chunkLimit = self.worldSize / self.chunkSize
-        self.noiseScale = 100
+        
+        self.chunkLimit = 100000 / self.chunkSize
 
     
     def generateBiomeChunk(self):
@@ -213,19 +251,19 @@ class worldChunkGenerator:
         """
         # Generate chunk data
         
-        random.seed(self.seed +self.chunkX  * 100000 + self.chunkY)
+        random.seed((int(self.seed) + int(self.chunkX)) * 100000 + self.chunkY)
         _layerOneNoise = PerlinNoise(octaves=4, seed=random.randint(0, 100000))
         _layerTwoNoise = PerlinNoise(octaves=6, seed=random.randint(0, 100000))
         _layerThreeNoise = PerlinNoise(octaves=8, seed=random.randint(0, 100000))
-        _biomeData = numpy.zeros((self.chunkSize, self.chunkSize), dtype=str)
+        _biomeData = numpy.zeros((16, 16), dtype=str)
         self.logger.info(f"Generated biome chunk data for chunk {self.chunkX}, {self.chunkY}")
 
-        for x in range(self.chunkSize):
-            for y in range(self.chunkSize):
+        for x in range(16):
+            for y in range(16):
                 if not self.isWithinBorder(self.chunkX, self.chunkY):
                     _biomeData[x][y] = biome.TECTONIC_PLATE
                 else:
-                    nx, nx = (self.chunkX * self.chunkSize + x) / self.worldSize, (self.chunkY * self.chunkSize + y) / self.noiseScale
+                    nx, nx = (self.chunkX * 16 + x) / 100000, (self.chunkY * 16 + y) / 100
                     value = _layerOneNoise([nx, nx]) * 0.5 + _layerTwoNoise([nx, nx]) *  0.5 + _layerThreeNoise([nx, nx]) * 0.5
                     _biomeData[x][y] = self.mapBiome(value)
         return _biomeData
@@ -234,12 +272,12 @@ class worldChunkGenerator:
         """
         This function will generate a chunk of the world based on the user input.
         """
-        _blockData = numpy.zeros((self.chunkSize, self.chunkSize), dtype=str)
+        _blockData = numpy.zeros((16, 16), dtype=str)
         self.logger.info(f"Generated block chunk data for chunk {self.chunkX}, {self.chunkY}")
         _blockNoise = PerlinNoise(octaves=4, seed=self.seed + 100000)
-        for x in range(self.chunkSize):
-            for y in range(self.chunkSize):
-                nx, ny = (self.chunkX * self.chunkSize + x) / self.worldSize, (self.chunkY * self.chunkSize + y) / self.noiseScale
+        for x in range(16):
+            for y in range(16):
+                nx, ny = (self.chunkX * 16 + x) / 100000, (self.chunkY * 16 + y) / 100
                 _biome = self.biomeData[x][y]
                 self.logger.info(f"Biome selected: {_biome}")
                 if _biome in BLOCK_VARIATIONS:
@@ -317,7 +355,7 @@ class worldChunkGenerator:
         """
         This function will check if a block is within the world border.
         """
-        return 0 <= x < self.chunkSize and 0 <= y < self.chunkSize
+        return 0 <= x < 16 and 0 <= y < 16
     
 
 # 
@@ -339,9 +377,7 @@ class chunkManager:
         self.file = h5py.File(self.saveFolder / self.filename, "a")
 
         # Chunk limits
-        self.chunkSize = 16
-        self.worldSize = 100000
-        self.chunkLimit = self.worldSize / self.chunkSize
+        self.chunkLimit = 100000 / 16
         self.noiseScale = 100
     
     def isValidChunk(self, chunkX, chunkY):
@@ -436,6 +472,45 @@ class chunkManager:
         self.logger.info(f"World loaded from file")
         self.file.close()
         
-    
 
+if __name__ == "__main__":
+    # Create an instance of the world class
+    myWorld = world()
+
+    # Generate a seed
+    seed = myWorld.generateSeed("284n2034nm#")# 
+
+    # Create an instance of the worldChunkGenerator class
+    chunkGenerator = worldChunkGenerator(0, 0, seed)
+
+    # Generate a biome chunk
+    biomeChunk = chunkGenerator.generateBiomeChunk()
+
+    # Generate a block chunk
+    blockChunk = chunkGenerator.generateBlockChunk()
+
+    # Print the generated biome chunk
+    print("Biome Chunk:")
+    for row in biomeChunk:
+        print(" ".join(row))
+
+    # Print the generated block chunk
+    print("Block Chunk:")
+    for row in blockChunk:
+        print(" ".join(row))
+
+    # Create an instance of the chunkManager class
+    chunkManager = chunkManager(seed)
+
+    # Get a chunk from the chunk manager
+    chunk = chunkManager.getChunk(0, 0)
+
+    # Update a block in the chunk
+    chunkManager.updateBlock(0, 0, 0, 0, Block.WILTED_GRASS)
+
+    # Save the world
+    chunkManager.saveWorld()
+
+    # Load the world
+    chunkManager.loadWorld()
   

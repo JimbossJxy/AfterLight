@@ -25,6 +25,50 @@ class gameState:
 playerPosition = [0, 0]
 
 loadGame = {}
+
+
+class colours:
+    BLACK = (0, 0, 0)
+    WHITE = (255, 255, 255)
+    RED = (255, 0, 0)
+    GREEN = (0, 255, 0)
+    BLUE = (0, 0, 255)
+    YELLOW = (255, 255, 0)
+    CYAN = (0, 255, 255)
+    MAGENTA = (255, 0, 255)
+    ORANGE = (255, 165, 0)
+    PURPLE = (128, 0, 128)
+    PINK = (255, 192, 203)
+    GREY = (128, 128, 128)
+    BROWN = (165, 42, 42)
+    LIME = (0, 255, 0)
+    TEAL = (0, 128, 128)
+    NAVY = (0, 0, 128)
+    MAROON = (128, 0, 0)
+    OLIVE = (128, 128, 0)
+    SKY_BLUE = (135, 206, 235)
+    TAN = (210, 180, 140)
+    GOLD = (255, 215, 0)
+    SILVER = (192, 192, 192)
+    BRONZE = (205, 127, 50)
+    COPPER = (184, 115, 51)
+    PLATINUM = (229, 228, 226)
+    DIAMOND = (185, 242, 255)
+    EMERALD = (0, 201, 87)
+    SAPPHIRE = (15, 82, 186)
+    RUBY = (224, 17, 95)
+    AMETHYST = (153, 102, 204)
+    TOPAZ = (255, 204, 0)
+    PEARL = (234, 224, 200)
+    OPAL = (168, 195, 188)
+    IRON = (240, 240, 240)
+    STEEL = (192, 192, 192)
+    TITANIUM = (128, 128, 128)
+    ALUMINIUM = (160, 160, 160)
+    COPPER = (184, 115, 51)
+    BRASS = (181, 166, 66)
+    
+
 saveGame = {
     "inventory": {},
     "world": {
@@ -77,8 +121,6 @@ settings = {
         "ambientVolume": 1.0
     },
     "keybinds": {
-        "moveUp": "w",
-        "moveDown": "s",
         "moveLeft": "a",
         "moveRight": "d",
         "jump": "SPACE",
