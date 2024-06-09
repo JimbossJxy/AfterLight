@@ -11,6 +11,20 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
+
+
+
+
+
+# game variables
+GRAVITY = 0.75
+ROWS = 16
+COLS = 150
+TILE_SIZE = 1080 // ROWS
+TILE_TYPES = 21
+level = 1
+
+
 class gameState:
     MAIN_MENU = 0
     RESUME_GAME = 1
